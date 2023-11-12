@@ -1,0 +1,12 @@
+version: "3"
+services:
+  pikiosk:
+    container_name: pikiosk
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/data
+    # entrypoint:
+    #   - /bin/sleep
+    #   - infinity

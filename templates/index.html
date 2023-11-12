@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+    <head>
+    <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="static/index.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <title>Pi Kiosk</title>
+    </head>
+    <body>
+        <h1>Pi Kiosk</h1>
+        <button type="button" class="btn btn-success add">Add</button>
+        <table class="table table-striped table-hover pis">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>MAC</th>
+                    <th>Name</th>
+                    <th>Last Seen IP</th>
+                    <th>URL</th>
+                    <th>Rotation</th>
+                    <th>Zoom</th>
+                    <th></th>
+                </tr>
+            </thead>
+            {% for pi in data%}
+            {% if pi['url'] != None %}
+            <tr>
+                <td><input hidden class="originalmac" value="{{pi['mac']}}"></td>
+                <td><input disabled class="mac" value="{{pi['mac']}}"></td>
+                <td><input disabled class="name" value="{{pi['name']}}"></td>
+                <td><div class="ip">{{pi['last_seen_ip']}}</div></td>
+                <td><input disabled class="url" value="{{pi['url']}}"/></td>
+                <td><select disabled class="rotation"><option {% if pi['rotation'] == "0" %}selected{% endif %}>0</option><option {% if pi['rotation'] == "90" %}selected{% endif %}>90</option><option {% if pi['rotation'] == "180" %}selected{% endif %}>180</option><option {% if pi['rotation'] == "270" %}selected{% endif %}>270</option></select></td>
+                <td><input disabled class="zoom" type="number" value="{{pi['zoom']}}"/></td>
+                <td><button type="button" class="btn btn-success edit">Edit</button> <button type="button" class="btn btn-danger delete">Delete</button></td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+        <h3>Unconfigured MACs</h3>
+        <table class="table table-striped table-hover macs">
+            <thead>
+                <tr>
+                    <th>
+                        MAC
+                    </th>
+                    <th>
+                    </th>
+                </tr>
+            </thead>
+            {% for pi in data%}
+            {% if pi['url'] == None %}
+            <tr>
+                <td class="mac">{{pi['mac']}}</td>
+                <td><button type="button" class="btn btn-success configure">Configure</button> <button type="button" class="btn btn-danger forget">Forget</button></td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+    </body>
+</html>
