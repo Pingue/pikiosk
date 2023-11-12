@@ -15,7 +15,7 @@ wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/requirements.txt -O /opt/pikiosk/requirements.txt
 
 echo "Installing app"
-sudo apt install python3-pip jq curl chromium-browser x11-xserver-utils unclutter nginx uwsgi uwsgi-plugin-python3
+sudo apt install -y python3-pip jq curl chromium-browser x11-xserver-utils unclutter nginx uwsgi uwsgi-plugin-python3
 pip3 install -r /app/requirements.txt
 
 sudo bash -c 'cat <<EOF > /etc/motd
