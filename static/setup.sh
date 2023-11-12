@@ -1,9 +1,12 @@
 #!/bin/bash
-# TODO: Ensure run as pi user
+# TODO: Ensure run as autologin user
+# TODO: systemd service needs to be run as autologin user
 # TODO: Add check for existing install
-# TODO: Default for manager URL
-# TODO: Read manager URL from file
 # TODO: OS check
+# TODO: Write localmanager service
+# TODO: Integrate localmanager service
+# TODO: on setup, prompt for background image URL which gets curled locally
+
 mkdir /opt/pikiosk
 echo -n "Manager URL: "
 read manager
@@ -13,6 +16,7 @@ echo "Fetching app from github..."
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/kiosk.sh -O /opt/pikiosk/kiosk.sh
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/app.py -O /opt/pikiosk/app.py
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/requirements.txt -O /opt/pikiosk/requirements.txt
+chmod +x /opt/pikiosk/kiosk.sh
 
 echo "Installing app"
 sudo apt install -y python3-pip jq curl chromium-browser x11-xserver-utils unclutter nginx uwsgi uwsgi-plugin-python3
