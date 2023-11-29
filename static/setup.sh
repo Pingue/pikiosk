@@ -65,7 +65,7 @@ echo $manager > /opt/pikiosk/manager
 
 echo "Fetching app from github..."
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/kiosk.sh -O /opt/pikiosk/kiosk.sh
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/app.py -O /opt/pikiosk/app.py
+wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/localmanager.py -O /opt/pikiosk/app.py
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/requirements.txt -O /opt/pikiosk/requirements.txt
 chmod +x /opt/pikiosk/kiosk.sh
 
@@ -132,7 +132,7 @@ sudo cat <<EOF > /etc/uwsgi/apps-enabled/piadmin.ini
 [uwsgi]
 plugins = python3
 chdir = /opt/pikiosk
-module = app:app
+module = localmanager:localmanager
 master = true
 processes = 5
 socket =

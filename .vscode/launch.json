@@ -25,7 +25,7 @@
             "module": "flask",
             "python": "${workspaceFolder}/venv/bin/python", // Path to the Python interpreter of your venv
             "env": {
-                "FLASK_APP": "static/localmanager/app.py",
+                "FLASK_APP": "static/localmanager/localmanager.py",
                 "FLASK_ENV": "development",
                 "FLASK_DEBUG": "0"
             },

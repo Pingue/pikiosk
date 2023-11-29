@@ -16,17 +16,20 @@
     </head>
     <body>
         <h1>Manage this local instance of pikiosk</h1>
-        Changes will not be persisted next time this pi connects to the configured pikiosk instance
+        Changes will be overwritten next time this pi connects to the configured pikiosk manager instance
         <br/><br/>
         <form>
+            <label for="mac">Manager URL:</label>
+            <input type="text" id="manager" name="manager" value="{{manager}}"><br><br>
+
             <label for="mac">MAC:</label>
             <input disabled type="text" id="mac" name="mac" value="{{mac}}"><br><br>
 
             <label for="name">Name:</label>
-            <input type="text" id="name" name="name"><br><br>
+            <input type="text" id="name" name="name" value="{{name}}"><br><br>
 
             <label for="url">URL:</label>
-            <input type="text" id="url" name="url"><br><br>
+            <input type="text" id="url" name="url" value="{{url}}"><br><br>
 
             <label for="rotation">Rotation:</label>
             <select id="rotation" class="rotation"><option {% if rotation == "0" %}selected{% endif %}>0</option><option {% if rotation == "90" %}selected{% endif %}>90</option><option {% if rotation == "180" %}selected{% endif %}>180</option><option {% if rotation == "270" %}selected{% endif %}>270</option></select><br/><br/></td>
@@ -34,8 +37,12 @@
             <label for="zoom">Zoom:</label>
             <input id="zoom" class="zoom" type="number" value="{{zoom}}"/><br/><br/>
 
-            <input class="btn btn-danger" type="submit" value="Save and Reboot">
-            <input class="btn btn-success" type="submit" value="Save and Refresh">
+            <input class="btn btn-success" type="submit" value="Save">
         </form>
+
+        <br/><br/>Ensure you have saved your changes before refreshing or rebooting<br/>
+        <a href="/refresh" role="button" class="btn btn-warning" type="submit">Refresh</a>
+        <a href="/reboot" role="button" class="btn btn-danger" type="submit">Reboot</a>
+
     </body>
 </html>
