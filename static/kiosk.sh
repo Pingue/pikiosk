@@ -15,6 +15,23 @@ echo "My MAC: $MYMAC"
 MYDATA=$(curl -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP")
 echo "My Data: $MYDATA"
 
+STATUS=$(echo "$MYDATA" | jq -r .status)
+if [[ $STATUS -eq "0" ]]; then
+        echo "Response received, caching details"
+        echo $MYDATA > /opt/pikiosk/cacheddetails
+else
+        echo "Uh oh, something went wrong and I couldn't find my URL"
+        if [ -f /opt/pikiosk/cacheddetails ]; then
+                echo "But I found a cached URL so I'm using that"
+                MYDATA=$(cat /opt/pikiosk/cacheddetails)
+        else
+                MYIP=$(ip addr show | grep 192 | sed 's/.*inet //; s/ .*//')
+                echo "Showing debug screen"
+                echo "<body style='background-color: black;'><h1 style='color: #121212; font-size: 100;'>MY MAC: $MYMAC <br/>MY DATA: $MYDATA <br/>MY IP: $MYIP </h1></body>" > /tmp/debug.html
+                MYDATA='{"url": "file:///tmp/debug.html", "rotation": "0", "zoom": "1", "name": "unknown", "status": "1"}'
+        fi        
+fi
+
 MYNAME=$(echo "$MYDATA" | jq -r .name)
 MYURL=$(echo "$MYDATA" | jq -r .url)
 MYROTATION=$(echo "$MYDATA" | jq -r .rotation)
@@ -41,24 +58,7 @@ fi
 if [[ $MYROTATION -eq "270" ]]; then
         ROTATE="right"
 fi
-
 xrandr --output HDMI-1 --rotate $ROTATE
-
-if [ -z $MYURL ]; then
-        echo "Uh oh, something went wrong and I couldn't find my URL"
-        if [ -f /opt/pikiosk/cachedURL ]; then
-                echo "But I found a cached URL so I'm using that"
-                MYURL=$(cat /opt/pikiosk/cachedURL)
-        else
-                MYIP=$(ip addr show | grep 192 | sed 's/.*inet //; s/ .*//')
-                echo "Showing debug screen"
-                echo "<body style='background-color: black;'><h1 style='color: #121212; font-size: 100;'>MY MAC: $MYMAC <br/>MY DATA: $DATA <br/>MY IP: $MYIP </h1></body>" > /tmp/debug.html
-                MYURL="file:///tmp/debug.html"
-        fi
-else
-        echo $MYURL > /opt/pikiosk/cachedURL
-fi
-
 xset -dpms     # disable DPMS (Energy Star) features.
 xset s off     # disable screen saver
 xset s noblank # don't blank the video device

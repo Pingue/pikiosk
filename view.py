@@ -51,13 +51,12 @@ def pi():
     pi = cursortodict(cur)[0]
     if pi["url"] == None:
         return "{'error': 'No configuration for a pi with that MAC address'}"
-    
+    pi["status"] = 0
     return pi
 
 @app.route('/update')
 def update():
     con = get_db_connection()
-    #TODO: Somehow check if the original mac has changed. If so, delete the old one
     originalmac = request.args.get('originalmac')
     mac = request.args.get('mac')
     url = request.args.get('url')
