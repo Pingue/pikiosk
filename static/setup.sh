@@ -14,16 +14,18 @@
 # TODO: screensaver isn't disabled
 # TODO: cachedURL should be cachedData and include rotation etc
 
-ln -s /opt/pikiosk/logo.png /usr/share/plymouth/themes/pix/splash.png 
-ln -s /opt/pikiosk/logo.png /usr/share/rpd-wallpaper/logo.png
-rm /etc/alternatives/desktop-background
-ln -s /opt/pikiosk/logo.png /etc/alternatives/desktop-background
-rm /etc/alternatives/desktop-login-background
-ln -s /opt/pikiosk/logo.png /etc/alternatives/desktop-login-background
-sed -i 's|^wallpaper=.*|wallpaper=/opt/pikiosk/logo.png|'
-echo "background=/opt/pikiosk/logo.png" >> /etc/lightdm/lightdm-gtk-greeter.conf
+sudo rm /usr/share/plymouth/themes/pix/splash.png 
+sudo rm /usr/share/rpd-wallpaper/logo.png
+sudo ln -s /opt/pikiosk/logo.png /usr/share/plymouth/themes/pix/splash.png 
+sudo ln -s /opt/pikiosk/logo.png /usr/share/rpd-wallpaper/logo.png
+sudo rm /etc/alternatives/desktop-background
+sudo ln -s /opt/pikiosk/logo.png /etc/alternatives/desktop-background
+sudo rm /etc/alternatives/desktop-login-background
+sudo ln -s /opt/pikiosk/logo.png /etc/alternatives/desktop-login-background
+sudo sed -i 's|^wallpaper=.*|wallpaper=/opt/pikiosk/logo.png|' /etc/lightdm/pi-greeter.conf
+echo "background=/opt/pikiosk/logo.png" | sudo tee --append /etc/lightdm/lightdm-gtk-greeter.conf
 
-cat <<EOF > ~/.config/pcmanfm/LXDE-pi/desktop-items-0.conf
+cat <<EOF | sudo tee /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
 [*]
 desktop_bg=#000000
 desktop_shadow=#000000
@@ -38,7 +40,11 @@ EOF
 
 
 # TODO: THIS IS NOT IDEMPOTENT
-sudo cat <<EOF >> /boot/config.txt
+cat <<EOF | sudo tee --append /boot/config.txt
+[pi4]
+arm_boost=1
+
+[all]
 hdmi_force_hotplug=1
 hdmi_group=1
 hdmi_mode=16
@@ -52,38 +58,40 @@ dtoverlay=disable-bt
 dtoverlay=disable-wifi
 disable_splash=1
 gpu_mem=128
-dtoverlay=vc4-fkms-v3d
-[pi4]
-arm_boost=1
+
 EOF
+# Below line was previously here, but it seems to be causing issues with the display, this might need to be a sed instead
+# dtoverlay=vc4-fkms-v3d
 
-
-mkdir /opt/pikiosk
+sudo mkdir /opt/pikiosk
+sudo chown $USER: /opt/pikiosk
 echo -n "Manager URL: "
 read manager
 echo $manager > /opt/pikiosk/manager
 
-echo "Fetching app from github..."
+echo "Fetching app from github..." #TODO: use git instead
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/kiosk.sh -O /opt/pikiosk/kiosk.sh
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/localmanager.py -O /opt/pikiosk/app.py
 wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/requirements.txt -O /opt/pikiosk/requirements.txt
+mkdir /opt/pikiosk/templates
+wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/templates/index.html -O /opt/pikiosk/templates/index.html
 chmod +x /opt/pikiosk/kiosk.sh
 
 echo "Installing app"
-sudo apt install -y python3-pip jq curl chromium-browser x11-xserver-utils unclutter nginx uwsgi uwsgi-plugin-python3 fbi
-pip3 install -r /opt/pikiosk/requirements.txt
+sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi
+sudo pip3 install -r /opt/pikiosk/requirements.txt
 
-sudo bash -c 'cat <<EOF > /etc/motd
+cat <<EOF | sudo tee /etc/motd
 ########### PIKIOSK  ############
 
 This Pi is managed with pikiosk image.
 
 #################################
-EOF'
+EOF
 
 echo "Setting up webserver"
 sudo rm /etc/nginx/sites-enabled/default
-sudo cat <<EOF > /etc/nginx/sites-enabled/piadmin
+cat <<EOF | sudo tee /etc/nginx/sites-enabled/piadmin
 upstream uwsgicluster {
 
     server 127.0.0.1:8080;
@@ -128,10 +136,10 @@ sudo systemctl restart nginx
 sudo systemctl enable nginx
 
 echo "Setting up uwsgi app server"
-sudo cat <<EOF > /etc/uwsgi/apps-enabled/piadmin.ini
+cat <<EOF | sudo tee /etc/uwsgi/apps-enabled/piadmin.ini
 [uwsgi]
 plugins = python3
-chdir = /opt/pikiosk
+        chdir = /opt/pikiosk
 module = localmanager:localmanager
 master = true
 processes = 5
@@ -144,7 +152,7 @@ sudo systemctl restart uwsgi
 
 
 
-sudo cat <<EOF > /lib/systemd/system/splashscreen.service
+cat <<EOF | sudo tee /lib/systemd/system/splashscreen.service
 [Unit]
 Description=Splash screen
 DefaultDependencies=no
@@ -159,7 +167,7 @@ EOF
 
 
 echo "Setting up autostart"
-sudo cat <<EOF > /etc/systemd/system/pikiosk.service
+cat <<EOF | sudo tee /etc/systemd/system/pikiosk.service
 [Unit] 
 Description=Pi Kiosk
 After=network.target
@@ -174,7 +182,9 @@ RestartSec=10
 [Install]
 WantedBy=default.target
 EOF
+sudo systemctl daemon-reload
 sudo loginctl enable-linger michael
 # TODO: change that user
 sudo systemctl enable pikiosk.service
 sudo systemctl start pikiosk.service
+sudo systemctl start ssh
