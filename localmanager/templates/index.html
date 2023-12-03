@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="static/index.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <!-- TODO: local copy of bootstrap -->
+        <title>Pikiosk Localmanager</title>
+    </head>
+    <body>
+        <h1>Manage this local instance of pikiosk</h1>
+        Changes will be overwritten next time this pi connects to the configured pikiosk manager instance
+        <br/><br/>
+        <form>
+            <label for="mac">Manager URL:</label>
+            <input type="text" id="manager" name="manager" value="{{manager}}"><br><br>
+
+            <label for="mac">MAC:</label>
+            <input disabled type="text" id="mac" name="mac" value="{{mac}}"><br><br>
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{name}}"><br><br>
+
+            <label for="url">URL:</label>
+            <input type="text" id="url" name="url" value="{{url}}"><br><br>
+
+            <label for="rotation">Rotation:</label>
+            <select id="rotation" class="rotation"><option {% if rotation == "0" %}selected{% endif %}>0</option><option {% if rotation == "90" %}selected{% endif %}>90</option><option {% if rotation == "180" %}selected{% endif %}>180</option><option {% if rotation == "270" %}selected{% endif %}>270</option></select><br/><br/></td>
+            
+            <label for="zoom">Zoom:</label>
+            <input id="zoom" class="zoom" type="number" value="{{zoom}}"/><br/><br/>
+
+            <input class="btn btn-success" type="submit" value="Save">
+        </form>
+
+        <br/><br/>Ensure you have saved your changes before refreshing or rebooting<br/>
+        <a href="/refresh" role="button" class="btn btn-warning" type="submit">Refresh</a>
+        <a href="/reboot" role="button" class="btn btn-danger" type="submit">Reboot</a>
+
+    </body>
+</html>
