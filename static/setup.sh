@@ -70,11 +70,12 @@ read manager
 echo $manager > /opt/pikiosk/manager
 
 echo "Fetching app from github..." #TODO: use git instead
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/kiosk.sh -O /opt/pikiosk/kiosk.sh
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/localmanager.py -O /opt/pikiosk/app.py
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/requirements.txt -O /opt/pikiosk/requirements.txt
+wget https://raw.githubusercontent.com/pingue/pikiosk/main/static/kiosk.sh -O /opt/pikiosk/kiosk.sh
+wget https://raw.githubusercontent.com/pingue/pikiosk/main/static/localmanager/localmanager.py -O /opt/pikiosk/app.py
+wget https://raw.githubusercontent.com/pingue/pikiosk/main/static/localmanager/requirements.txt -O /opt/pikiosk/requirements.txt
+wget https://raw.githubusercontent.com/pingue/pikiosk/main/static/localmanager/uwsgi.txt -O /opt/pikiosk/uwsgi.txt
 mkdir /opt/pikiosk/templates
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/templates/index.html -O /opt/pikiosk/templates/index.html
+wget https://raw.githubusercontent.com/pingue/pikiosk/main/static/localmanager/templates/index.html -O /opt/pikiosk/templates/index.html
 chmod +x /opt/pikiosk/kiosk.sh
 
 echo "Installing app"
@@ -121,7 +122,7 @@ server {
     location / {
     
         include            uwsgi_params;
-        uwsgi_pass         uwsgicluster;
+        uwsgi_pass         unix:/opt/pikiosk/localmanager.sock;
 
         proxy_redirect     off;
         proxy_set_header   Host \$host;
@@ -134,22 +135,6 @@ server {
 EOF
 sudo systemctl restart nginx
 sudo systemctl enable nginx
-
-echo "Setting up uwsgi app server"
-cat <<EOF | sudo tee /etc/uwsgi/apps-enabled/piadmin.ini
-[uwsgi]
-plugins = python3
-        chdir = /opt/pikiosk
-module = localmanager:localmanager
-master = true
-processes = 5
-socket =
-chmod-socket = 660
-vacuum = true
-die-on-term = true
-EOF
-sudo systemctl restart uwsgi
-
 
 
 cat <<EOF | sudo tee /lib/systemd/system/splashscreen.service
@@ -165,9 +150,26 @@ StandardOutput=tty
 WantedBy=sysinit.target
 EOF
 
+mkdir -p /home/pi/.local/share/systemd/user/
 
-echo "Setting up autostart"
-cat <<EOF | sudo tee /etc/systemd/system/pikiosk.service
+echo "Setting up localmanager service"
+cat <<EOF | sudo tee /home/pi/.local/share/systemd/user/localmanager.service
+[Unit] 
+Description=Pi Localmanager
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/pikiosk
+ExecStart=uwsgi --ini uwsgi.ini
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+EOF
+
+echo "Setting up pikiosk autostart"
+cat <<EOF | sudo tee /home/pi/.local/share/systemd/user/pikiosk.service
 [Unit] 
 Description=Pi Kiosk
 After=network.target
@@ -182,9 +184,14 @@ RestartSec=10
 [Install]
 WantedBy=default.target
 EOF
-sudo systemctl daemon-reload
-sudo loginctl enable-linger michael
+
+systemctl --user daemon-reload
+systemctl --user enable pikiosk.service
+systemctl --user start pikiosk.service
+
+systemctl --user enable localmanager.service
+systemctl --user start localmanager.service
+
+sudo loginctl enable-linger pi
 # TODO: change that user
-sudo systemctl enable pikiosk.service
-sudo systemctl start pikiosk.service
 sudo systemctl start ssh
