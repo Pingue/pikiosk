@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import json
 import netifaces
 import os
@@ -13,12 +13,12 @@ app = Flask(__name__)
 def home():
     def_gw_device = netifaces.gateways()['default'][netifaces.AF_INET][1]
     try:
-        manager = open('/opt/pikiosk/manager', 'r').read()
+        manager = open('./manager', 'r').read()
     except:
         manager = ""
     macaddr = netifaces.ifaddresses(def_gw_device)[netifaces.AF_LINK][0]['addr']
     try:
-        cachedDetails = json.load(open('/opt/pikiosk/cacheddetails'))
+        cachedDetails = json.load(open('./cacheddetails'))
     except:
         cachedDetails = {'name': '', 'url': '', 'rotation': 0, 'zoom': 0}
     name = cachedDetails['name']
@@ -30,13 +30,17 @@ def home():
 
 @app.route('/save')
 def update():
+    manager = request.args.get('manager')
+    f = open("./manager", "w")
+    f.write(manager)
+    f.close()
     url = request.args.get('url')
     name = request.args.get('name')
     rotation = request.args.get('rotation')
     zoom = request.args.get('zoom')
     cachedDetails = {'name': name, 'url': url, 'rotation': rotation, 'zoom': zoom}
-    json.dump(cachedDetails, open('/opt/pikiosk/cacheddetails', 'w'))
-    return "OK"
+    json.dump(cachedDetails, open('./cacheddetails', 'w'))
+    return redirect("/")
 
 @app.route('/reboot')
 def reboot():
@@ -47,7 +51,7 @@ def reboot():
 def refresh():
     command = '/usr/bin/xdotool getactivewindow key F5'
     subprocess.call(command.split(" "), env={"DISPLAY": ":0"})
-    return "OK"
+    return redirect("/")
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))

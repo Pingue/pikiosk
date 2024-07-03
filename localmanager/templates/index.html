@@ -16,9 +16,9 @@
     </head>
     <body>
         <h1>Manage this local instance of pikiosk</h1>
-        Changes will be overwritten next time this pi connects to the configured pikiosk manager instance
+        Changes will be overwritten next time this pi connects to the configured pikiosk manager instance (if configured)
         <br/><br/>
-        <form>
+        <form action="/save">
             <label for="mac">Manager URL:</label>
             <input type="text" id="manager" name="manager" value="{{manager}}"><br><br>
 
@@ -32,10 +32,10 @@
             <input type="text" id="url" name="url" value="{{url}}"><br><br>
 
             <label for="rotation">Rotation:</label>
-            <select id="rotation" class="rotation"><option {% if rotation == "0" %}selected{% endif %}>0</option><option {% if rotation == "90" %}selected{% endif %}>90</option><option {% if rotation == "180" %}selected{% endif %}>180</option><option {% if rotation == "270" %}selected{% endif %}>270</option></select><br/><br/></td>
+            <select id="rotation" name="rotation" class="rotation"><option {% if rotation == "0" %}selected{% endif %}>0</option><option {% if rotation == "90" %}selected{% endif %}>90</option><option {% if rotation == "180" %}selected{% endif %}>180</option><option {% if rotation == "270" %}selected{% endif %}>270</option></select><br/><br/></td>
             
             <label for="zoom">Zoom:</label>
-            <input id="zoom" class="zoom" type="number" value="{{zoom}}"/><br/><br/>
+            <input id="zoom" name="zoom" class="zoom" type="number" value="{{zoom}}"/><br/><br/>
 
             <input class="btn btn-success" type="submit" value="Save">
         </form>
