@@ -16,7 +16,7 @@ MYDATA=$(curl -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP")
 echo "My Data: $MYDATA"
 
 STATUS=$(echo "$MYDATA" | jq -r .status)
-if [[ $STATUS -eq "0" ]]; then
+if [[ $MYDATA != "" && $STATUS -eq "0" ]]; then
         echo "Response received, caching details"
         echo $MYDATA > /opt/pikiosk/cacheddetails
 else
