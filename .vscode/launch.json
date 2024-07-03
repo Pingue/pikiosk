@@ -3,35 +3,18 @@
     "configurations": [
         {
             "name": "Pikiosk",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "flask",
             "python": "${workspaceFolder}/venv/bin/python", // Path to the Python interpreter of your venv
             "env": {
                 "FLASK_APP": "view.py",
                 "FLASK_ENV": "development",
-                "FLASK_DEBUG": "0"
+                "FLASK_DEBUG": "1"
             },
             "args": [
                 "run",
                 "--port=5001"
-            ],
-            "jinja": true
-        },
-        {
-            "name": "LocalManager",
-            "type": "python",
-            "request": "launch",
-            "module": "flask",
-            "python": "${workspaceFolder}/venv/bin/python", // Path to the Python interpreter of your venv
-            "env": {
-                "FLASK_APP": "static/localmanager/localmanager.py",
-                "FLASK_ENV": "development",
-                "FLASK_DEBUG": "0"
-            },
-            "args": [
-                "run",
-                "--port=5002"
             ],
             "jinja": true
         }

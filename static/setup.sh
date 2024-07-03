@@ -60,25 +60,20 @@ disable_splash=1
 gpu_mem=128
 
 EOF
-# Below line was previously here, but it seems to be causing issues with the display, this might need to be a sed instead
+# Below line was previously ABOVE, but it seems to be causing issues with the display, this might need to be a sed instead
 # dtoverlay=vc4-fkms-v3d
 
-sudo mkdir /opt/pikiosk
+echo "Installing dependencies..."
+sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi git
+
+echo "Fetching app from github..." #TODO: use git instead
+git clone https://github.com/Pingue/pikiosk-localmanager.git /opt/pikiosk
 sudo chown $USER: /opt/pikiosk
 echo -n "Manager URL: "
 read manager
 echo $manager > /opt/pikiosk/manager
 
-echo "Fetching app from github..." #TODO: use git instead
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/kiosk.sh -O /opt/pikiosk/kiosk.sh
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/localmanager.py -O /opt/pikiosk/app.py
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/requirements.txt -O /opt/pikiosk/requirements.txt
-mkdir /opt/pikiosk/templates
-wget https://raw.githubusercontent.com/pingue/pikiosk/master/static/localmanager/templates/index.html -O /opt/pikiosk/templates/index.html
-chmod +x /opt/pikiosk/kiosk.sh
-
-echo "Installing app"
-sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi
+echo "Installing python dependencies..."
 sudo pip3 install -r /opt/pikiosk/requirements.txt
 
 cat <<EOF | sudo tee /etc/motd

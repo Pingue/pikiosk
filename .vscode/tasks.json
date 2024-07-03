@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "unlock DB",
+            "type": "shell",
+            "command": "bash", // call bash
+            "args": [
+                "-c", // read commands from string
+                "echo .dump | sudo sqlite3 data/db.sqlite3 | sudo sqlite3 data/db2.sqlite3 && sudo mv data/db2.sqlite3 data/db.sqlite3" // link all files ending with .o
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
