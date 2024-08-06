@@ -14,6 +14,14 @@
 # TODO: screensaver isn't disabled
 # TODO: cachedURL should be cachedData and include rotation etc
 
+if [ ! "$BASH_VERSION" ] ; then
+        echo "Not running under bash, exiting"
+        exit 0
+fi
+
+sudo mkdir /opt/pikiosk
+sudo chown pi: /opt/pikiosk
+
 sudo rm /usr/share/plymouth/themes/pix/splash.png 
 sudo ln -s /opt/pikiosk/logo.png /usr/share/plymouth/themes/pix/splash.png 
 sudo rm /usr/share/rpd-wallpaper/logo.png
@@ -65,7 +73,7 @@ EOF
 # dtoverlay=vc4-fkms-v3d
 
 echo "Installing dependencies..."
-sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi git
+sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi git vim
 
 echo "Fetching app from github..."
 git clone https://github.com/Pingue/pikiosk-localmanager.git /opt/pikiosk

@@ -37,7 +37,7 @@ def pi():
     mac = request.args.get('mac')
     ip = request.args.get('ip', 'Not yet seen')
     if mac == None or mac == "None" or mac == "":
-        return "{'error': 'No MAC address provided'}", 400
+        return '{"error": "No MAC address provided"}', 400
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     if pi:
         con.execute('UPDATE pis SET last_seen_ip=? WHERE mac=?', (ip, mac))
@@ -51,7 +51,7 @@ def pi():
 
     pi = cursortodict(cur)[0]
     if pi["url"] == None:
-        return "{'error': 'No configuration for a pi with that MAC address'}"
+        return '{"error": "No configuration for a pi with that MAC address"}'
     pi["status"] = 0
     return pi
 
@@ -66,7 +66,8 @@ def update():
     zoom = request.args.get('zoom')
 
     if mac == None or mac == "None" or mac == "":
-        return "{'error': 'No MAC address provided'}", 400
+        return '{"error": "No MAC address provided"}', 400
+
     
     if originalmac:
         con.execute('UPDATE pis SET mac=?, name=?, url=?, rotation=?, zoom=? WHERE mac=?', (mac, name, url, rotation, zoom, originalmac))
@@ -88,11 +89,11 @@ def delete():
     pi = cur.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
 
     if pi == None:
-        return "{'error': 'No Pi with that MAC address'}", 404
+        return '{"error": "No Pi with that MAC address"}', 404
 
     con.execute('UPDATE pis SET name=null, url=null, rotation=null, zoom=null  WHERE mac = ?', (mac,))
     con.commit()
-    return "{'success': 'Deleted'}"
+    return '{"success": "Deleted"}'
 
 @app.route('/forget')
 def forget():
@@ -103,11 +104,11 @@ def forget():
     pi = cur.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
 
     if pi == None:
-        return "{'error': 'No Pi with that MAC address'}", 404
+        return '{"error": "No Pi with that MAC address"}', 404
 
     con.execute('DELETE FROM pis WHERE mac = ?', (mac,))
     con.commit()
-    return "{'success': 'Removed'}"
+    return '{"success": "Removed"}'
 
 
 if __name__ == "__main__":
