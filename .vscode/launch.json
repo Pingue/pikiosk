@@ -10,7 +10,8 @@
             "env": {
                 "FLASK_APP": "view.py",
                 "FLASK_ENV": "development",
-                "FLASK_DEBUG": "1"
+                "FLASK_DEBUG": "1",
+                "DB_PATH": "${workspaceFolder}/data/db.sqlite3"
             },
             "args": [
                 "run",

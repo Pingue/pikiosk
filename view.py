@@ -6,6 +6,7 @@ import shelve
 import sqlite3
 
 app = Flask(__name__)
+db_path = os.environ.get('DB_PATH', '/data/db.sqlite3')
 
 def cursortodict(cursor):
     desc = cursor.description
@@ -15,7 +16,7 @@ def cursortodict(cursor):
     return data
 
 def get_db_connection():
-    con = sqlite3.connect('/data/db.sqlite3')
+    con = sqlite3.connect(db_path)
     con.row_factory = sqlite3.Row
     con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, url TEXT, rotation INT, zoom INT)')
     con.commit()

@@ -15,8 +15,8 @@
 # TODO: cachedURL should be cachedData and include rotation etc
 
 sudo rm /usr/share/plymouth/themes/pix/splash.png 
-sudo rm /usr/share/rpd-wallpaper/logo.png
 sudo ln -s /opt/pikiosk/logo.png /usr/share/plymouth/themes/pix/splash.png 
+sudo rm /usr/share/rpd-wallpaper/logo.png
 sudo ln -s /opt/pikiosk/logo.png /usr/share/rpd-wallpaper/logo.png
 sudo rm /etc/alternatives/desktop-background
 sudo ln -s /opt/pikiosk/logo.png /etc/alternatives/desktop-background
@@ -40,7 +40,7 @@ EOF
 
 
 # TODO: THIS IS NOT IDEMPOTENT
-cat <<EOF | sudo tee --append /boot/config.txt
+cat <<EOF | sudo tee --append /boot/firmware/config.txt
 [pi4]
 arm_boost=1
 
@@ -58,6 +58,7 @@ dtoverlay=disable-bt
 dtoverlay=disable-wifi
 disable_splash=1
 gpu_mem=128
+avoid_warnings=2
 
 EOF
 # Below line was previously ABOVE, but it seems to be causing issues with the display, this might need to be a sed instead
@@ -66,14 +67,16 @@ EOF
 echo "Installing dependencies..."
 sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi git
 
-echo "Fetching app from github..." #TODO: use git instead
+echo "Fetching app from github..."
 git clone https://github.com/Pingue/pikiosk-localmanager.git /opt/pikiosk
 sudo chown $USER: /opt/pikiosk
+python3 -m venv /opt/pikiosk/venv
 echo -n "Manager URL: "
 read manager
 echo $manager > /opt/pikiosk/manager
 
 echo "Installing python dependencies..."
+source /opt/pikiosk/venv/bin/activate
 sudo pip3 install -r /opt/pikiosk/requirements.txt
 
 cat <<EOF | sudo tee /etc/motd
@@ -154,7 +157,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/opt/pikiosk
-ExecStart=uwsgi --ini uwsgi.ini
+ExecStart=/opt/pikiosk/venv/bin/uwsgi --ini uwsgi.ini
 Restart=always
 RestartSec=10
 
