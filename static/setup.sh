@@ -13,6 +13,7 @@
 # TODO: Occasional race condition causing login to fail because pikiosk has already taken DISPLAY=:0. maybe pause until a display is already available
 # TODO: screensaver isn't disabled
 # TODO: cachedURL should be cachedData and include rotation etc
+# TODO: increase disk on boot?
 
 if [ ! "$BASH_VERSION" ] ; then
         echo "Not running under bash, exiting"
@@ -73,7 +74,7 @@ EOF
 # dtoverlay=vc4-fkms-v3d
 
 echo "Installing dependencies..."
-sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi git vim
+sudo apt install -y python3-pip xdotool jq curl chromium-browser x11-xserver-utils unclutter nginx fbi git vim x11-utils
 
 echo "Fetching app from github..."
 git clone https://github.com/Pingue/pikiosk-localmanager.git /opt/pikiosk
@@ -161,10 +162,12 @@ echo "Setting up localmanager service"
 cat <<EOF | sudo tee /home/pi/.local/share/systemd/user/localmanager.service
 [Unit] 
 Description=Pi Localmanager
-After=network.target
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
 WorkingDirectory=/opt/pikiosk
+ExecStartPre=/bin/nm-online -q
 ExecStart=/opt/pikiosk/venv/bin/uwsgi --ini uwsgi.ini
 Restart=always
 RestartSec=10
@@ -190,6 +193,17 @@ RestartSec=10
 WantedBy=default.target
 EOF
 
+echo "Forcing X11 as much doesn't work on Wayland" # This is taken from raspi-config
+sed /etc/lightdm/lightdm.conf -i -e "s/^#\\?user-session.*/user-session=LXDE-pi-x/"
+sed /etc/lightdm/lightdm.conf -i -e "s/^#\\?autologin-session.*/autologin-session=LXDE-pi-x/"
+sed /etc/lightdm/lightdm.conf -i -e "s/^#\\?greeter-session.*/greeter-session=pi-greeter/"
+sed /etc/lightdm/lightdm.conf -i -e "s/^fallback-test.*/#fallback-test=/"
+sed /etc/lightdm/lightdm.conf -i -e "s/^fallback-session.*/#fallback-session=/"
+sed /etc/lightdm/lightdm.conf -i -e "s/^fallback-greeter.*/#fallback-greeter=/"
+if [ -e "/var/lib/AccountsService/users/$USER" ] ; then
+  sed "/var/lib/AccountsService/users/$USER" -i -e "s/XSession=.*/XSession=LXDE-pi-x/"
+fi
+
 systemctl --user daemon-reload
 systemctl --user enable pikiosk.service
 systemctl --user start pikiosk.service
@@ -197,6 +211,7 @@ systemctl --user start pikiosk.service
 systemctl --user enable localmanager.service
 systemctl --user start localmanager.service
 
+DISPLAY=:0 xhost +
 sudo loginctl enable-linger pi
 # TODO: change that user
 sudo systemctl start ssh
