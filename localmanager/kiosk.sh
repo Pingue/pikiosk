@@ -4,6 +4,8 @@
 #
 export DISPLAY=:0
 
+rm -f /tmp/debug.html
+
 MANAGERURL=$(cat /opt/pikiosk/manager)
 
 MYIP=$(ip route show default | sed 's/.*src //' | sed 's/ .*//')
@@ -15,21 +17,27 @@ echo "My MAC: $MYMAC"
 MYDATA=$(curl -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP")
 echo "My Data: $MYDATA"
 
-STATUS=$(echo "$MYDATA" | jq -r .status)
-if [[ $MYDATA != "" && $STATUS -eq "0" ]]; then
+if [[ $MYDATA != "" ]]; then
         echo "Response received, caching details"
         echo $MYDATA > /opt/pikiosk/cacheddetails
 else
-        echo "Uh oh, something went wrong and I couldn't find my URL"
+        echo "Uh oh, something went wrong and I couldn't fetch my details"
         if [ -f /opt/pikiosk/cacheddetails ]; then
-                echo "But I found a cached URL so I'm using that"
+                echo "But I found cached details I'm using that"
                 MYDATA=$(cat /opt/pikiosk/cacheddetails)
-        else
-                MYIP=$(ip addr show | grep 192 | sed 's/.*inet //; s/ .*//')
-                echo "Showing debug screen"
-                echo "<body style='background-color: black;'><h1 style='color: #121212; font-size: 100;'>MY MAC: $MYMAC <br/>MY DATA: $MYDATA <br/>MY IP: $MYIP </h1></body>" > /tmp/debug.html
-                MYDATA='{"url": "file:///tmp/debug.html", "rotation": "0", "zoom": "1", "name": "unknown", "status": "1"}'
-        fi        
+                echo "My Data: $MYDATA"
+        fi
+
+fi
+
+STATUS=$(echo "$MYDATA" | jq -r .status)
+echo "My Status: $STATUS"
+
+if [[ $STATUS != "0" ]]; then
+        MYIP=$(ip addr show | grep 192 | sed 's/.*inet //; s/ .*//')
+        echo "Showing debug screen"
+        echo "<body style='background-color: black;'><h1 style='color: #121212; font-size: 100;'>MY MAC: $MYMAC <br/>MY DATA: $MYDATA <br/>MY IP: $MYIP </h1></body>" > /tmp/debug.html
+        MYDATA='{"url": "file:///tmp/debug.html", "rotation": "0", "zoom": "1", "name": "unknown", "status": "1"}'
 fi
 
 MYNAME=$(echo "$MYDATA" | jq -r .name)
@@ -70,6 +78,9 @@ sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' ~/.config/chromium/Defaul
 rm ~/.config/chromium/SingletonLock
 
 echo "Opening: $MYURL"
+echo chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL 
+echo $DISPLAY
+
 chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL &
 
 sleep infinity;
