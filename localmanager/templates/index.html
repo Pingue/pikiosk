@@ -16,6 +16,13 @@
     </head>
     <body>
         <h1>Manage this local instance of pikiosk</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-primary" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         Changes will be overwritten next time this pi connects to the configured pikiosk manager instance (if configured)
         <br/><br/>
         <form action="/save">
@@ -40,9 +47,10 @@
             <input class="btn btn-success" type="submit" value="Save">
         </form>
 
-        <br/><br/>Ensure you have saved your changes before refreshing or rebooting<br/>
-        <a href="/refresh" role="button" class="btn btn-warning" type="submit">Refresh</a>
-        <a href="/reboot" role="button" class="btn btn-danger" type="submit">Reboot</a>
+        <br/><br/>Ensure you have saved your changes before performing any actions below<br/>
+        <a href="/refresh" role="button" class="btn btn-primary" type="submit">Refresh (chrome)</a>
+        <a href="/reload" role="button" class="btn btn-warning" type="submit">Reload (pikiosk)</a>
+        <a href="/reboot" role="button" class="btn btn-danger" type="submit">Reboot (pi)</a>
 
     </body>
 </html>
