@@ -45,7 +45,13 @@ def update():
 @app.route('/reboot')
 def reboot():
     subprocess.call(['reboot'])
-    return "OK"
+    return "Rebooting... Please refresh the page after a short while."
+
+@app.route('/reload')
+def reload():
+    command = 'systemctl restart --user pikiosk.service'
+    subprocess.call(command.split(" "))
+    return redirect("/")
 
 @app.route('/refresh')
 def refresh():
