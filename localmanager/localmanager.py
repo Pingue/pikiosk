@@ -2,12 +2,15 @@ from flask import Flask, flash, render_template, request, redirect
 import json
 import netifaces
 import os
+import random
 import re
 import socket
+import string
 import subprocess
 
 
 app = Flask(__name__)
+app.secret_key = '2pn9hCRnCyrqKu9eNRqs'
 
 @app.route('/')
 def home():
@@ -45,21 +48,21 @@ def update():
 @app.route('/reboot')
 def reboot():
     subprocess.call(['reboot'])
-    flash('Pi rebooting, please refresh the page in a short while')
+    flash('Pi rebooting, please refresh the page in a short while', 'warning')
     return redirect("/")
 
 @app.route('/reload')
 def reload():
     command = 'systemctl restart --user pikiosk.service'
     subprocess.call(command.split(" "))
-    flash('Pikiosk service reloaded')
+    flash('Pikiosk service reloaded', 'info')
     return redirect("/")
 
 @app.route('/refresh')
 def refresh():
     command = '/usr/bin/xdotool getactivewindow key F5'
     subprocess.call(command.split(" "), env={"DISPLAY": ":0"})
-    flash('Page refreshed')
+    flash('Page refreshed', 'info')
     return redirect("/")
 
 if __name__ == "__main__":
