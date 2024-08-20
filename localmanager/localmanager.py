@@ -22,12 +22,17 @@ def home():
     macaddr = netifaces.ifaddresses(def_gw_device)[netifaces.AF_LINK][0]['addr']
     try:
         cachedDetails = json.load(open('./cacheddetails'))
+        name = cachedDetails['name']
+        url = cachedDetails['url']
+        rotation = cachedDetails['rotation']
+        zoom = cachedDetails['zoom']
     except:
-        cachedDetails = {'name': '', 'url': '', 'rotation': 0, 'zoom': 0}
-    name = cachedDetails['name']
-    url = cachedDetails['url']
-    rotation = cachedDetails['rotation']
-    zoom = cachedDetails['zoom']
+        cachedDetails = { "last_seen_ip": "", "last_seen_timestamp": 0, "name": "", "rotation": 0, "status": 0, "url": "", "zoom": ""}
+        name = "ERROR"
+        url = "ERROR"
+        rotation = 0
+        zoom = 0
+
     return render_template('index.html', manager=manager, mac=macaddr, name=name, url=url, rotation=rotation, zoom=zoom)
     
 
@@ -63,6 +68,13 @@ def refresh():
     command = '/usr/bin/xdotool getactivewindow key F5'
     subprocess.call(command.split(" "), env={"DISPLAY": ":0"})
     flash('Page refreshed', 'info')
+    return redirect("/")
+
+@app.route('/gitpull')
+def refresh():
+    command = '/usr/bin/git pull'
+    subprocess.call(command.split(" "))
+    flash('git pull completed', 'success')
     return redirect("/")
 
 if __name__ == "__main__":
