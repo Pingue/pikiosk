@@ -71,7 +71,7 @@ def refresh():
     return redirect("/")
 
 @app.route('/gitpull')
-def refresh():
+def gitpull():
     command = '/usr/bin/git pull'
     subprocess.call(command.split(" "))
     flash('git pull completed', 'success')
