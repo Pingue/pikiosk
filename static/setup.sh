@@ -2,17 +2,11 @@
 # TODO: Ensure script and service are both run as whatever autologin user is configged
 # TODO: Add check for existing install
 # TODO: OS check
-# TODO: Write localmanager service
-# TODO: Integrate localmanager service
 # TODO: on setup, prompt for background image URL which gets curled locally
-# FIXME: some way of getting this into place: /opt/pikiosk/logo.png
-# TODO: systemd unit should be created in ~/.local/share/systemd/user
-# TODO: Set default wallpaper
 # TODO: /boot/cmdline.txt --- logo.nologo
 # TODO: Not working on first boot (trying before network?)
 # TODO: Occasional race condition causing login to fail because pikiosk has already taken DISPLAY=:0. maybe pause until a display is already available
 # TODO: screensaver isn't disabled
-# TODO: cachedURL should be cachedData and include rotation etc
 # TODO: increase disk on boot?
 
 if [ ! "$BASH_VERSION" ] ; then
@@ -168,7 +162,7 @@ After=network.target network-online.target
 [Service]
 WorkingDirectory=/opt/pikiosk
 ExecStartPre=/bin/nm-online -q
-ExecStart=/opt/pikiosk/venv/bin/uwsgi --ini uwsgi.ini
+ExecStart=/opt/pikiosk/venv/bin/uwsgi --ini uwsgi.ini -H /opt/pikiosk/venv
 Restart=always
 RestartSec=10
 
@@ -193,6 +187,8 @@ RestartSec=10
 WantedBy=default.target
 EOF
 
+echo "* * * * * /opt/pikiosk/checkin.sh" | crontab -
+
 echo "Forcing X11 as much doesn't work on Wayland" # This is taken from raspi-config
 sed /etc/lightdm/lightdm.conf -i -e "s/^#\\?user-session.*/user-session=LXDE-pi-x/"
 sed /etc/lightdm/lightdm.conf -i -e "s/^#\\?autologin-session.*/autologin-session=LXDE-pi-x/"
@@ -215,3 +211,4 @@ DISPLAY=:0 xhost +
 sudo loginctl enable-linger pi
 # TODO: change that user
 sudo systemctl start ssh
+

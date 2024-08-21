@@ -30,7 +30,7 @@ $(document).on('click', '.save', function(){
             originalmac: parent.parent().find(".originalmac").val(),
             mac: parent.parent().find(".mac").val(),
             name: parent.parent().find(".name").val(),
-            ip: parent.parent().find(".ip").text(),
+//            ip: parent.parent().find(".ip").text(),
             url: parent.parent().find(".url").val(),
             rotation: parent.parent().find(".rotation").val(),
             zoom: parent.parent().find(".zoom").val(),
@@ -39,6 +39,7 @@ $(document).on('click', '.save', function(){
             parent.parent().removeClass("table-warning");
             parent.find(".save").remove();
             parent.find(".cancel").remove();
+            parent.prev().html('<button type="button" class="btn btn-primary refresh">Refresh</button> <button type="button" class="btn btn-warning reload">Reload</button> <button type="button" class="btn btn-danger reboot">Reboot</button>')
             parent.append('<button type="button" class="btn btn-success edit">Edit</button> <button type="button" class="btn btn-danger delete">Delete</button>');
         },
         error: function(result){
@@ -77,9 +78,11 @@ $(document).on('click', '.configure', function(){
     '<td><input class="mac" value="'+mac+'"></td>'+
     '<td><input class="name"></td>'+
     '<td><div class="ip"></div></td>'+
+    '<td><div class="time"></div></td>'+
     '<td><input class="url"/></td>'+
     '<td><select class="rotation"><option selected>0</option><option>90</option><option>180</option><option>270</option></select></td>'+
     '<td><input class="zoom" type="number"/></td>'+
+    '<td><button type="button" class="btn btn-primary refresh">Refresh</button> <button type="button" class="btn btn-warning reload">Reload</button> <button type="button" class="btn btn-danger reboot">Reboot</button></td>'+
     '<td><button class="btn btn-primary save">Save</button> <button class="btn btn-danger cancel">Cancel</button></td>'+
     '</tr>');
 }); 
@@ -112,9 +115,11 @@ $(document).on('click', '.add', function(){
     '<td><input class="mac"></td>'+
     '<td><input class="name"></td>'+
     '<td><div class="ip"></div></td>'+
+    '<td><div class="time"></div></td>'+
     '<td><input class="url"/></td>'+
     '<td><select class="rotation"><option selected>0</option><option>90</option><option>180</option><option>270</option></select></td>'+
     '<td><input class="zoom" type="number"/></td>'+
+    '<td></td>'+
     '<td><button class="btn btn-primary save">Save</button> <button class="btn btn-danger cancel">Cancel</button></td>'+
     '</tr>');
 });
@@ -132,4 +137,66 @@ $(document).on('click', '.forget', function(){
             parent.parent().remove();
         }
     })
+});
+
+$(document).on('click', '.refresh', function(){ 
+    console.log($(this));
+    mac = $(this).parent().parent().find(".mac").val();
+
+    $.ajax({
+        url: "refresh",
+        type: "GET",
+        data: {
+            mac: mac,
+        },
+        success: function(result){
+            console.log("Refreshed");
+        },
+        error: function(result){
+            console.log("Error refreshing");
+        }
+    });
+
+});
+
+
+$(document).on('click', '.reload', function(){ 
+    console.log($(this));
+    mac = $(this).parent().parent().find(".mac").val();
+
+    $.ajax({
+        url: "reload",
+        type: "GET",
+        data: {
+            mac: mac,
+        },
+        success: function(result){
+            console.log("Reloaded");
+        },
+        error: function(result){
+            console.log("Error reloading");
+        }
+    });
+
+});
+
+
+$(document).on('click', '.reboot', function(){ 
+    console.log($(this));
+    mac = $(this).parent().parent().find(".mac").val();
+
+    $.ajax({
+        url: "reboot",
+        type: "GET",
+        data: {
+            mac: mac,
+        },
+        success: function(result){
+            console.log("Rebooted");
+        },
+        error: function(result){
+            console.log("Error rebooting");
+        }
+    });
+
 });

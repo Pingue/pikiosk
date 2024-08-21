@@ -24,22 +24,26 @@
                     <th>MAC</th>
                     <th>Name</th>
                     <th>Last Seen IP</th>
+                    <th>Last Seen Time</th>
                     <th>URL</th>
                     <th>Rotation</th>
                     <th>Zoom</th>
+                    <th>Actions</th>
                     <th></th>
                 </tr>
             </thead>
-            {% for pi in data%}
+            {% for pi in data %}
             {% if pi['url'] != None %}
             <tr>
                 <td><input hidden class="originalmac" value="{{pi['mac']}}"></td>
                 <td><input disabled class="mac" value="{{pi['mac']}}"></td>
                 <td><input disabled class="name" value="{{pi['name']}}"></td>
                 <td><div class="ip">{{pi['last_seen_ip']}}</div></td>
+                <td><div class="time">{{pi['last_seen_timestamp']}}</div></td>
                 <td><input disabled class="url" value="{{pi['url']}}"/></td>
                 <td><select disabled class="rotation"><option {% if pi['rotation'] == 0 %}selected{% endif %}>0</option><option {% if pi['rotation'] == 90 %}selected{% endif %}>90</option><option {% if pi['rotation'] == 180 %}selected{% endif %}>180</option><option {% if pi['rotation'] == 270 %}selected{% endif %}>270</option></select></td>
                 <td><input disabled class="zoom" type="number" value="{{pi['zoom']}}"/></td>
+                <td><button type="button" class="btn btn-primary refresh">Refresh</button> <button type="button" class="btn btn-warning reload">Reload</button> <button type="button" class="btn btn-danger reboot">Reboot</button></td>
                 <td><button type="button" class="btn btn-success edit">Edit</button> <button type="button" class="btn btn-danger delete">Delete</button></td>
             </tr>
             {% endif %}
@@ -65,5 +69,12 @@
             {% endif %}
             {% endfor %}
         </table>
+        <h3>Notes</h3> <!-- TODO: make this collapsable -->
+        The action buttons require pikiosk to be on the same network as the pi.
+        <ul>
+            <li>Refresh - F5 on the current page. Does not fetch new information from pikiosk</li>
+            <li>Reload - Restart the pikiosk service running on the pi. Restarts the browser and fetches new information from pikiosk</li>
+            <li>Reboot - Reboot the pi. Fetches new information from pikiosk on startup</li>
+        </ul>
     </body>
 </html>
