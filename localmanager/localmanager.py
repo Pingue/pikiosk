@@ -12,8 +12,13 @@ import subprocess
 app = Flask(__name__)
 app.secret_key = '2pn9hCRnCyrqKu9eNRqs'
 
+def get_current_git_tag():
+    return os.popen('git describe --tags').read().strip()
+
 @app.route('/')
 def home():
+    tag = get_current_git_tag()
+
     def_gw_device = netifaces.gateways()['default'][netifaces.AF_INET][1]
     try:
         manager = open('./manager', 'r').read()
@@ -33,7 +38,7 @@ def home():
         rotation = 0
         zoom = 0
 
-    return render_template('index.html', manager=manager, mac=macaddr, name=name, url=url, rotation=rotation, zoom=zoom)
+    return render_template('index.html', manager=manager, mac=macaddr, name=name, url=url, rotation=rotation, zoom=zoom, tag=tag)
     
 
 @app.route('/save')
