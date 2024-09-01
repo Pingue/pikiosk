@@ -14,8 +14,8 @@ if [ ! -f /etc/os-release ] ; then
         echo "Cannot find /etc/os-release, are you on raspbian?"
         exit 1
 fi
-if ! grep -q "Raspbian" /etc/os-release ; then
-        echo "This script is intended for raspbian, exiting"
+if ! grep -q "Debian" /etc/os-release ; then
+        echo "This script is intended for raspbian (Debian), exiting"
         exit 1
 fi
 
