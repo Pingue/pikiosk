@@ -27,8 +27,10 @@ read logo
 
 # Install dependencies
 echo "Installing dependencies..."
-sudo apt install -y git python3 python3-pip
-sudo pip3 install ansible ansible-playbook
+sudo apt install -y git python3 python3-pip pipx
+pipx install ansible
+pipx install ansible-core
+pipx ensurepath
 
 # Fetch app from github
 echo "Fetching app from github..."
@@ -40,4 +42,4 @@ wget $logo -O /opt/pikiosk/logo.png
 
 # Run ansible playbook to set up the app
 echo "Running ansible playbook..."
-ansible-playbook /opt/pikiosk/ansible/setup.yml
+/home/pi/.local/bin/ansible-playbook /opt/pikiosk/ansible/setup.yml
