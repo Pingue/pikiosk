@@ -72,13 +72,13 @@
 # Below line was previously here, but it seems to be causing issues with the display
 # dtoverlay=vc4-fkms-v3d
 
-  - name: Enable cmdline options
-    replace:
-      path: cmdline.txt
-      regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
-      replace: '\1 {{ item }}'
-    with_items:
-    - "logo.nologo"
+- name: Enable cmdline options
+  replace:
+    path: cmdline.txt
+    regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+    replace: '\1 {{ item }}'
+  with_items:
+  - "logo.nologo"
 
 - name: Force X11 instead of Wayland
   ansible.builtin.lineinfile:
