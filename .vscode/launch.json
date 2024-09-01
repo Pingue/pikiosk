@@ -8,7 +8,7 @@
             "module": "flask",
             "python": "${workspaceFolder}/venv/bin/python", // Path to the Python interpreter of your venv
             "env": {
-                "FLASK_APP": "view.py",
+                "FLASK_APP": "pikiosk-central.py",
                 "FLASK_ENV": "development",
                 "FLASK_DEBUG": "1",
                 "DB_PATH": "${workspaceFolder}/data/db.sqlite3"

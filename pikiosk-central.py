@@ -24,6 +24,12 @@ def get_db_connection():
     con.commit()
     return con
 
+def get_git_revision_hash():
+    return os.popen('git rev-parse HEAD').read().strip()
+
+def get_current_git_tag():
+    return os.popen('git describe --exact-match --tags').read().strip()
+
 @app.route('/')
 def home():
 
