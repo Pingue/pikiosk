@@ -15,6 +15,17 @@
     state: started
   become: yes
     
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: yes
+  become: yes
+
 - name: Install dependencies
   ansible.builtin.package:
     name: "{{ item }}"
