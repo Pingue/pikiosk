@@ -1,0 +1,28 @@
+---
+- name: Symlink pikiosk service
+  ansible.builtin.file:
+    dest: /home/pi/.local/share/systemd/user/pikiosk.service
+    src: /opt/pikiosk/files/pikiosk.service
+    state: link
+
+- name: Start and enable pikiosk service
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    name: pikiosk
+    enabled: yes
+    state: started
+    scope: user
+
+- name: Set up crontab
+  ansible.builtin.shell: "echo '* * * * * /opt/pikiosk/checkin.sh' | crontab -"
+  args:
+    executable: /bin/bash
+
+- name: Creates a cron file under /etc/cron.d
+  ansible.builtin.cron:
+    weekday: "*"
+    minute: "*"
+    hour: "*"
+    user: root
+    job: "/opt/pikiosk/checkin.sh"
+    cron_file: pikiosk

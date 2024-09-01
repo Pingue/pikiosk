@@ -1,0 +1,56 @@
+---
+- name: Symlink logo file
+  ansible.builtin.file:
+    src: /opt/pikiosk/logo.png
+    dest: "{{item}}"
+    state: link
+    force: yes
+  with_items:
+    - /usr/share/plymouth/themes/pix/splash.png
+    - /usr/share/rpd-wallpaper/logo.png
+    - /etc/alternatives/desktop-background
+    - /etc/alternatives/desktop-login-background
+  become: yes
+
+- name: Set up pi-greeter
+  ansible.builtin.lineinfile:
+    file: /etc/lightdm/pi-greeter.conf
+    line: "{{ item.line }}"
+    state: present
+    regexp: "{{ item.regex }}"
+  with_items:
+    - { line: "wallpaper=/opt/pikiosk/logo.png", regex: "^wallpaper=.*" }
+  become: yes
+
+- name: Set up lightdm-gtk-greeter
+  ansible.builtin.lineinfile:
+    file: /etc/lightdm/lightdm-gtk-greeter.conf
+    line: "{{ item.line }}"
+    state: present
+    regexp: "{{ item.regex }}"
+  with_items:
+    - { line: "background=/opt/pikiosk/logo.png", regex: "^background=.*" }
+  become: yes
+
+- name: Symlink desktop configuration
+  ansible.builtin.file:
+    src: /opt/pikiosk/files/desktop-items-0.conf
+    dest: /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
+    state: link
+    force: yes
+  become: yes
+
+- name: Symlink splashscreen
+  ansible.builtin.file:
+    src: /opt/pikiosk/files/splashscreen.service
+    dest: /home/pi/.local/share/systemd/user/splashscreen.service
+    state: link
+    force: yes  
+
+- name: Enable splashscreen
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    name: splashscreen
+    enabled: yes
+    state: started
+    scope: user

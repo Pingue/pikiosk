@@ -1,0 +1,40 @@
+---
+- name: Install python requirements (virtualenv)
+  ansible.builtin.pip:
+    requirements: /opt/pikiosk/requirements.txt
+    virtualenv: /opt/pikiosk/venv
+
+- name: Remove default nginx site
+  ansible.builtin.file:
+    state: absent
+    filename: /etc/nginx/sites-enabled/default
+  become: yes
+
+- name: Symlink nginx site
+  ansible.builtin.file:
+    dest: /etc/nginx/sites-enabled/localmanager.conf
+    src: /opt/pikiosk/files/localmanager.conf
+    state: link
+  become: yes
+  notify: restart nginx
+
+- name: Enable nginx
+  ansible.builtin.service:
+    name: nginx
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Symlink localmanager service
+  ansible.builtin.file:
+    dest: /home/pi/.local/share/systemd/user/localmanager.service
+    src: /opt/pikiosk/files/localmanager.service
+    state: link
+
+- name: Start and enable localmanager service
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    name: localmanager
+    enabled: yes
+    state: started
+    scope: user

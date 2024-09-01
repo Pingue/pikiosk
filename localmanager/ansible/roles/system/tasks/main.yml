@@ -1,0 +1,109 @@
+---
+- name: Copy motd
+  ansible.builtin.copy:
+    src: motd
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: Enable SSH
+  ansible.builtin.service:
+    name: sshd
+    enabled: yes
+    state: started
+  become: yes
+    
+- name: Install dependencies
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - xdotool
+    - jq
+    - curl
+    - python3
+    - python3-pip
+    - chromium-browser
+    - x11-xserver-utils
+    - unclutter
+    - nginx
+    - fbi
+    - git
+    - vim
+    - x11-utils
+  become: yes
+
+- name: Set boot options
+  ansible.builtin.ini_file:
+    dest: /boot/firmware/config.txt
+    section: "{{item.section}}"
+    option: "{{item.option}}"
+    value: "{{item.value}}"
+  with_items:
+    - { section: pi4, option: arm_boost, value: 1 }
+    - { section: all, option: hdmi_force_hotplug, value: 1 }
+    - { section: all, option: hdmi_group, value: 1 }
+    - { section: all, option: hdmi_mode, value: 16 }
+    - { section: all, option: hdmi_group:0, value: 1 }
+    - { section: all, option: hdmi_mode:0, value: 16 }
+    - { section: all, option: hdmi_group:1, value: 1 }
+    - { section: all, option: hdmi_mode:1, value: 16 }
+    - { section: all, option: dtparam, value: i2c_arm=on }
+    - { section: all, option: dtparam, value: spi=off }
+    - { section: all, option: dtoverlay, value: disable-bt }
+    - { section: all, option: dtoverlay, value: disable-wifi }
+    - { section: all, option: disable_splash, value: 1 }
+    - { section: all, option: gpu_mem, value: 128 }
+    - { section: all, option: avoid_warnings, value: 2 }
+  become: yes
+# Below line was previously here, but it seems to be causing issues with the display
+# dtoverlay=vc4-fkms-v3d
+
+  - name: Enable cmdline options
+    replace:
+      path: cmdline.txt
+      regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+      replace: '\1 {{ item }}'
+    with_items:
+    - "logo.nologo"
+
+- name: Force X11 instead of Wayland
+  ansible.builtin.lineinfile:
+    file: /etc/lightdm/lightdm.conf
+    line: "{{ item.line }}"
+    state: present
+    regexp: "{{ item.regex }}"
+  with_items:
+    - { line: "user-session=LXDE-pi-x", regex: "^#\\?user-session.*" }
+    - { line: "autologin-session=LXDE-pi-x", regex: "^#\\?autologin-session.*" }
+    - { line: "greeter-session=pi-greeter", regex: "^#\\?greeter-session.*" }
+    - { line: "#fallback-test=", regex: "^fallback-test.*" }
+    - { line: "#fallback-session=", regex: "^fallback-session.*" }
+    - { line: "#fallback-greeter=", regex: "^fallback-greeter.*" }
+    - { line: "autologin-user=pi", regex: "^#\\?autologin-user.*" }
+    - { line: "autologin-user-timeout=0", regex: "^#\\?autologin-user-timeout.*" }
+  become: yes
+
+- name: Set per user XSession
+  ansible.builtin.lineinfile:
+    file: "/var/lib/AccountsService/users/pi"
+    line: "XSession=LXDE-pi-x"
+  become: yes
+
+- name: Enable Linger for pi user
+  ansible.builtin.command: loginctl enable-linger pi
+  args:
+    creates: /var/lib/systemd/linger/pi
+  become: yes
+
+#DISPLAY=:0 xhost +
+
+- name: Create systemd user directory
+  ansible.builtin.file:
+    path: /home/pi/.local/share/systemd/user/
+    state: directory
+    mode: 0755
+    owner: pi
+    group: pi
