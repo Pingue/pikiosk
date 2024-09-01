@@ -81,6 +81,4 @@ echo "Opening: $MYURL"
 echo chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL 
 echo $DISPLAY
 
-chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL &
-
-sleep infinity;
+chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL
