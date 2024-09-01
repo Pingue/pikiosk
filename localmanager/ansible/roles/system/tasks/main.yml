@@ -53,8 +53,8 @@
     section: "{{item.section}}"
     option: "{{item.option}}"
     value: "{{item.value}}"
+    no_extra_spaces: yes
   with_items:
-    - { section: pi4, option: arm_boost, value: 1 }
     - { section: all, option: hdmi_force_hotplug, value: 1 }
     - { section: all, option: hdmi_group, value: 1 }
     - { section: all, option: hdmi_mode, value: 16 }

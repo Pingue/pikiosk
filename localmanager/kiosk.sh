@@ -77,8 +77,10 @@ sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' ~/.config/chromium/Defa
 sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' ~/.config/chromium/Default/Preferences
 rm ~/.config/chromium/SingletonLock
 
+xhost +si:localuser:pi
+
 echo "Opening: $MYURL"
-echo chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL 
+echo chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized
 echo $DISPLAY
 
-chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL
+chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized
