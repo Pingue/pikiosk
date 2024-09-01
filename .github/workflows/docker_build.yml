@@ -23,15 +23,25 @@ jobs:
         uses: gittools/actions/gitversion/setup@v3.0.0
         with:
           versionSpec: '6.x'
-      - name: Determine Version
+      - name: gitversion
         uses: gittools/actions/gitversion/execute@v3.0.0
         with:
           useConfigFile: "true"
           configFilePath: "/repo/GitVersion.yml"
-      - run: |
-          echo "FullSemVer (env.fullSemVer)            : ${{ env.fullSemVer }}"
-        name: Display GitVersion variables (without prefix)
-
+      - name: Display GitVersion outputs
+        run: |
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+      - name: Create tag
+        uses: actions/github-script@v3
+        with:
+          script: |
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/v${{ steps.gitversion.outputs.semVer }}",
+              sha: context.sha
+            })
+    
   build-and-push-docker-image:
     runs-on: ubuntu-latest
     steps:
