@@ -14,7 +14,7 @@
 
 - name: Set up pi-greeter
   ansible.builtin.lineinfile:
-    file: /etc/lightdm/pi-greeter.conf
+    path: /etc/lightdm/pi-greeter.conf
     line: "{{ item.line }}"
     state: present
     regexp: "{{ item.regex }}"
@@ -24,7 +24,7 @@
 
 - name: Set up lightdm-gtk-greeter
   ansible.builtin.lineinfile:
-    file: /etc/lightdm/lightdm-gtk-greeter.conf
+    path: /etc/lightdm/lightdm-gtk-greeter.conf
     line: "{{ item.line }}"
     state: present
     regexp: "{{ item.regex }}"

@@ -7,7 +7,7 @@
 - name: Remove default nginx site
   ansible.builtin.file:
     state: absent
-    filename: /etc/nginx/sites-enabled/default
+    path: /etc/nginx/sites-enabled/default
   become: yes
 
 - name: Symlink nginx site

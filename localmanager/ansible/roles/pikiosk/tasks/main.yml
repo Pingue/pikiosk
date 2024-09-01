@@ -13,16 +13,13 @@
     state: started
     scope: user
 
-- name: Set up crontab
-  ansible.builtin.shell: "echo '* * * * * /opt/pikiosk/checkin.sh' | crontab -"
-  args:
-    executable: /bin/bash
-
 - name: Creates a cron file under /etc/cron.d
   ansible.builtin.cron:
+    name: checkin
     weekday: "*"
     minute: "*"
     hour: "*"
     user: root
     job: "/opt/pikiosk/checkin.sh"
     cron_file: pikiosk
+  become: yes

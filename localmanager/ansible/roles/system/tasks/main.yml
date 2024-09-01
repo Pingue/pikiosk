@@ -10,7 +10,7 @@
 
 - name: Enable SSH
   ansible.builtin.service:
-    name: sshd
+    name: ssh
     enabled: yes
     state: started
   become: yes
@@ -36,6 +36,7 @@
     - curl
     - python3
     - python3-pip
+    - python3-virtualenv
     - chromium-browser
     - x11-xserver-utils
     - unclutter
@@ -47,7 +48,7 @@
   become: yes
 
 - name: Set boot options
-  ansible.builtin.ini_file:
+  community.general.ini_file:
     dest: /boot/firmware/config.txt
     section: "{{item.section}}"
     option: "{{item.option}}"
@@ -74,15 +75,16 @@
 
 - name: Enable cmdline options
   replace:
-    path: cmdline.txt
+    path: /boot/firmware/cmdline.txt
     regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
     replace: '\1 {{ item }}'
   with_items:
   - "logo.nologo"
+  become: yes
 
 - name: Force X11 instead of Wayland
   ansible.builtin.lineinfile:
-    file: /etc/lightdm/lightdm.conf
+    path: /etc/lightdm/lightdm.conf
     line: "{{ item.line }}"
     state: present
     regexp: "{{ item.regex }}"
@@ -99,7 +101,8 @@
 
 - name: Set per user XSession
   ansible.builtin.lineinfile:
-    file: "/var/lib/AccountsService/users/pi"
+    path: "/var/lib/AccountsService/users/pi"
+    create: true
     line: "XSession=LXDE-pi-x"
   become: yes
 

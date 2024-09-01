@@ -42,4 +42,5 @@ wget $logo -O /opt/pikiosk/logo.png
 
 # Run ansible playbook to set up the app
 echo "Running ansible playbook..."
+/home/pi/.local/bin/ansible-galaxy collection install community.general
 /home/pi/.local/bin/ansible-playbook /opt/pikiosk/ansible/setup.yml
