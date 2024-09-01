@@ -24,15 +24,12 @@ def get_db_connection():
     con.commit()
     return con
 
-def get_git_revision_hash():
-    return os.popen('git rev-parse HEAD').read().strip()
-
 def get_current_git_tag():
-    return os.popen('git describe --exact-match --tags').read().strip()
+    return os.popen('git describe --tags').read().strip()
 
 @app.route('/')
 def home():
-
+    tag = get_current_git_tag()
     con = get_db_connection()
     cur = con.cursor()
     cur.execute('SELECT * FROM pis')
@@ -42,7 +39,7 @@ def home():
             pi['last_seen_timestamp'] = time.strftime('%Y-%m-%d %H:%M', time.localtime(pi['last_seen_timestamp']))
         else:
             pi['last_seen_timestamp'] = 'N/A'
-    return render_template('index.html', data=data)
+    return render_template('index.html', data=data, tag=tag)
 
 @app.route('/checkin')
 def checkin():
