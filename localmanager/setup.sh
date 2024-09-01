@@ -14,7 +14,7 @@ if [ ! -f /etc/os-release ] ; then
         echo "Cannot find /etc/os-release, are you on raspbian?"
         exit 1
 fi
-if ! grep -q "Debian" /etc/os-release ; then
+if ! grep -q "Raspbian" /etc/os-release ; then
         echo "This script is intended for raspbian (Debian), exiting"
         exit 1
 fi
@@ -22,7 +22,6 @@ fi
 # Prompt for details
 echo -n "Manager URL: "
 read manager
-echo $manager > /opt/pikiosk/manager
 echo -n "Fetch logo file: "
 read logo
 
@@ -36,6 +35,7 @@ echo "Fetching app from github..."
 sudo mkdir /opt/pikiosk
 sudo chown pi: /opt/pikiosk
 git clone https://github.com/Pingue/pikiosk-localmanager.git /opt/pikiosk
+echo $manager > /opt/pikiosk/manager
 wget $logo -O /opt/pikiosk/logo.png
 
 # Run ansible playbook to set up the app
