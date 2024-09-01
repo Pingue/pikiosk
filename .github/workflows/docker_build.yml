@@ -26,10 +26,8 @@ jobs:
       - name: Determine Version
         uses: gittools/actions/gitversion/execute@v3.0.0
         with:
-          overrideConfig: |
-            major-version-bump-message="^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-,/\\\\]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
-            minor-version-bump-message="^(feat)(\\([\\w\\s-,/\\\\]*\\))?:"
-            patch-version-bump-message="^(fix|perf)(\\([\\w\\s-,/\\\\]*\\))?:"
+          useConfigFile: "true"
+          configFilePath: "/repo/GitVersion.yml"
       - run: |
           echo "FullSemVer (env.fullSemVer)            : ${{ env.fullSemVer }}"
         name: Display GitVersion variables (without prefix)
