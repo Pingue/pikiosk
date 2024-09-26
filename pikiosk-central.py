@@ -66,8 +66,8 @@ def pi():
     if mac == None or mac == "None" or mac == "":
         return '{"error": "No MAC address provided"}', 400
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
+    timestamp = int(time.time())
     if pi:
-        timestamp = int(time.time())
         con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=? WHERE mac=?', (ip, timestamp, mac))
         con.commit()
     else:
