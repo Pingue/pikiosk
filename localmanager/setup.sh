@@ -1,4 +1,7 @@
 #!/bin/bash
+
+export LC_ALL=en_GB.UTF-8
+
 # Check we are running under bash
 if [ ! "$BASH_VERSION" ] ; then
         echo "Not running under bash, exiting"
