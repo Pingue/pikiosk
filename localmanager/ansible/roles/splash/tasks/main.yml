@@ -20,6 +20,7 @@
     group: root
     mode: 0644
   notify: update-initramfs
+  become: yes
 
 - name: Set up pi-greeter
   ansible.builtin.lineinfile:
