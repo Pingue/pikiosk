@@ -66,7 +66,7 @@ fi
 if [[ $MYROTATION -eq "270" ]]; then
         ROTATE="right"
 fi
-xrandr --output HDMI-1 --rotate $ROTATE
+xrandr --output HDMI-1 --rotate $ROTATE --mode 1920x1080 --refresh 59.940
 xset -dpms     # disable DPMS (Energy Star) features.
 xset s off     # disable screen saver
 xset s noblank # don't blank the video device
