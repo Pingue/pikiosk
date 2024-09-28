@@ -17,7 +17,7 @@ echo "My IP: $MYIP"
 MYMAC=$(ip addr show | grep $MYIP -B1 | head -n1 | sed 's/.*ether //' | sed 's/ .*//')
 echo "My MAC: $MYMAC"
 
-MYDATA=$(curl -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION" --data-urlencode "os=$MYOS")
+MYDATA=$(curl -G -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION" --data-urlencode "os=$MYOS")
 echo "My Data: $MYDATA"
 
 if [[ $MYDATA != "" ]]; then
