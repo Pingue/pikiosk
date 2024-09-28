@@ -46,6 +46,9 @@ def checkin():
     con = get_db_connection()
     mac = request.args.get('mac')
     ip = request.args.get('ip')
+    version = request.args.get('version')
+    os = request.args.get('os')
+
     if mac == None or mac == "None" or mac == "":
         return '{"error": "No MAC address provided"}', 400
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
