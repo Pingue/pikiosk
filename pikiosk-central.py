@@ -59,7 +59,7 @@ def checkin():
     else:
         return '{"error": "MAC Address not configured"}', 400
 
-    return{"success": "Checked in"}
+    return{"success": f"Checked in {mac} on {ip} on {version} on {os}"}
 
 @app.route('/pi')
 def pi():
