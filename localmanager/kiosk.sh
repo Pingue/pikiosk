@@ -8,13 +8,16 @@ rm -f /tmp/debug.html
 
 MANAGERURL=$(cat /opt/pikiosk/manager)
 
+MYPIKIOSKVERSION=$(git -C /opt/pikiosk/ describe --tags)
+MYOS=$(cat /etc/os-release | grep PRETTY_NAME | sed 's/.*AME..\(.*\).$/\1/')
+
 MYIP=$(ip route show default | sed 's/.*src //' | sed 's/ .*//')
 echo "My IP: $MYIP"
 
 MYMAC=$(ip addr show | grep $MYIP -B1 | head -n1 | sed 's/.*ether //' | sed 's/ .*//')
 echo "My MAC: $MYMAC"
 
-MYDATA=$(curl -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP")
+MYDATA=$(curl -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION" --data-urlencode "os=$MYOS")
 echo "My Data: $MYDATA"
 
 if [[ $MYDATA != "" ]]; then
