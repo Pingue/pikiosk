@@ -19,7 +19,7 @@
     weekday: "*"
     minute: "*"
     hour: "*"
-    user: root
+    user: pi
     job: "/opt/pikiosk/checkin.sh"
     cron_file: pikiosk
   become: yes
