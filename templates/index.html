@@ -99,6 +99,7 @@
             {% if pi['url'] == None %}
             <tr>
                 <td class="mac">{{pi['mac']}}</td>
+                <td class="last_seen_ip">{{pi['last_seen_ip']}}</td>
                 <td class="version">{{pi['version']}}</td>
                 <td class="os">{{pi['os']}}</td>
                 <td><button type="button" class="btn btn-success configure">Configure</button> <button type="button" class="btn btn-danger forget">Forget</button></td>
