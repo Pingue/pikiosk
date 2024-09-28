@@ -200,3 +200,24 @@ $(document).on('click', '.reboot', function(){
     });
 
 });
+
+
+$(document).on('click', '.gitpull', function(){ 
+    console.log($(this));
+    mac = $(this).parent().parent().find(".mac").val();
+
+    $.ajax({
+        url: "gitpull",
+        type: "GET",
+        data: {
+            mac: mac,
+        },
+        success: function(result){
+            console.log("Updating");
+        },
+        error: function(result){
+            console.log("Error updating");
+        }
+    });
+
+});

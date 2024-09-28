@@ -20,7 +20,7 @@ def cursortodict(cursor):
 def get_db_connection():
     con = sqlite3.connect(db_path)
     con.row_factory = sqlite3.Row
-    con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT)')
+    con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT)')
     con.commit()
     return con
 
@@ -51,7 +51,7 @@ def checkin():
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     if pi:
         timestamp = int(time.time())
-        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=? WHERE mac=?', (ip, timestamp, mac))
+        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=? WHERE mac=?', (ip, timestamp, mac, version, os))
         con.commit()
     else:
         return '{"error": "MAC Address not configured"}', 400
@@ -62,16 +62,19 @@ def checkin():
 def pi():
     con = get_db_connection()
     mac = request.args.get('mac')
-    ip = request.args.get('ip', 'Not yet seen')
+    ip = request.args.get('ip')
+    version = request.args.get('version')
+    os = request.args.get('os')
+
     if mac == None or mac == "None" or mac == "":
         return '{"error": "No MAC address provided"}', 400
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     timestamp = int(time.time())
     if pi:
-        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=? WHERE mac=?', (ip, timestamp, mac))
+        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=? WHERE mac=?', (ip, timestamp, mac, version, os))
         con.commit()
     else:
-        con.execute('INSERT INTO pis (mac, last_seen_ip, last_seen_timestamp) VALUES (?, ?, ?)', (mac, ip, timestamp))
+        con.execute('INSERT INTO pis (mac, last_seen_ip, last_seen_timestamp, version, os) VALUES (?, ?, ?, ?, ?)', (mac, ip, timestamp, version, os))
         con.commit()
 
     cur = con.cursor()
@@ -152,6 +155,11 @@ def reload():
 def reboot():
     mac = request.args.get('mac')
     return performActionOnPi(mac, 'reboot')
+
+@app.route('/gitpull')
+def gitpull():
+    mac = request.args.get('mac')
+    return performActionOnPi(mac, 'gitpull')
 
 def performActionOnPi(mac, action):
     con = get_db_connection()

@@ -9,6 +9,8 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="static/index.js"></script>
+        <script src="//cdn.datatables.net/2.1.7/js/dataTables.min.js"></script>
+        <link rel="stylesheet" href="//cdn.datatables.net/2.1.7/css/dataTables.dataTables.min.css">
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
         <style>
@@ -21,7 +23,17 @@
                 text-align: center;
             }
         </style>
-        <!--- TODO: local copy of bootstrap-->
+        <script>
+            $(document).ready(function() {
+                $('.pis').DataTable();
+                $('.macs').DataTable();
+            });
+            $(function () {
+                $('.os-popover').popover({
+                    container: 'body'
+                })
+            })
+        </script>
         <title>Pi Kiosk</title>
     </head>
     <body>
@@ -38,6 +50,8 @@
                     <th>URL</th>
                     <th>Rotation</th>
                     <th>Zoom</th>
+                    <th>Version</th>
+                    <th>OS</th>
                     <th>Actions</th>
                     <th></th>
                 </tr>
@@ -48,12 +62,14 @@
                 <td><input hidden class="originalmac" value="{{pi['mac']}}"></td>
                 <td><input disabled class="mac" value="{{pi['mac']}}"></td>
                 <td><input disabled class="name" value="{{pi['name']}}"></td>
-                <td><div class="ip">{{pi['last_seen_ip']}}</div></td>
+                <td><div class="ip"><a href="http://{{pi['last_seen_ip']}}">{{pi['last_seen_ip']}}</a></div></td>
                 <td><div class="time">{{pi['last_seen_timestamp']}}</div></td>
                 <td><input disabled class="url" value="{{pi['url']}}"/></td>
                 <td><select disabled class="rotation"><option {% if pi['rotation'] == 0 %}selected{% endif %}>0</option><option {% if pi['rotation'] == 90 %}selected{% endif %}>90</option><option {% if pi['rotation'] == 180 %}selected{% endif %}>180</option><option {% if pi['rotation'] == 270 %}selected{% endif %}>270</option></select></td>
                 <td><input disabled class="zoom" type="number" value="{{pi['zoom']}}"/></td>
-                <td><button type="button" class="btn btn-primary refresh">Refresh</button> <button type="button" class="btn btn-warning reload">Reload</button> <button type="button" class="btn btn-danger reboot">Reboot</button></td>
+                <td><div class="version">{{pi['version']}}</div></td>
+                <td><button type="button" class="os-popover btn btn-secondary" data-toggle="popover" title="OS Version" data-content="{{pi['os']}}">OS</button></button></td>
+                <td><button type="button" class="btn btn-primary refresh">Refresh</button> <button type="button" class="btn btn-warning reload">Reload</button> <button type="button" class="btn btn-danger reboot">Reboot</button> <button type="button" class="btn btn-info gitpull">Update</button></td>
                 <td><button type="button" class="btn btn-success edit">Edit</button> <button type="button" class="btn btn-danger delete">Delete</button></td>
             </tr>
             {% endif %}
@@ -67,6 +83,15 @@
                         MAC
                     </th>
                     <th>
+                        IP
+                    </th>
+                    <th>
+                        Version
+                    </th>
+                    <th>
+                        OS
+                    </th>
+                    <th>
                     </th>
                 </tr>
             </thead>
@@ -74,6 +99,8 @@
             {% if pi['url'] == None %}
             <tr>
                 <td class="mac">{{pi['mac']}}</td>
+                <td class="version">{{pi['version']}}</td>
+                <td class="os">{{pi['os']}}</td>
                 <td><button type="button" class="btn btn-success configure">Configure</button> <button type="button" class="btn btn-danger forget">Forget</button></td>
             </tr>
             {% endif %}
@@ -85,6 +112,7 @@
             <li>Refresh - F5 on the current page. Does not fetch new information from pikiosk</li>
             <li>Reload - Restart the pikiosk service running on the pi. Restarts the browser and fetches new information from pikiosk</li>
             <li>Reboot - Reboot the pi. Fetches new information from pikiosk on startup</li>
+            <li>Update - Pulls the latest version of pikiosk onto the pi from git.</li>
         </ul>
         <footer class="footer">
             <div class="container">
