@@ -54,7 +54,7 @@ def checkin():
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     if pi:
         timestamp = int(time.time())
-        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=? WHERE mac=?', (ip, timestamp, mac, version, os))
+        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=? WHERE mac=?', (ip, timestamp, version, os, mac))
         con.commit()
     else:
         return '{"error": "MAC Address not configured"}', 400
