@@ -44,11 +44,14 @@
 
 - name: Symlink desktop configuration
   ansible.builtin.file:
-    src: /opt/pikiosk/files/desktop-items-0.conf
+    src: "{{item}}"
     dest: /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
     state: link
     force: yes
   become: yes
+  with_items:
+    - /opt/pikiosk/files/desktop-items-0.conf
+    - /opt/pikiosk/files/desktop-items-1.conf
 
 - name: Symlink splashscreen service
   ansible.builtin.file:
