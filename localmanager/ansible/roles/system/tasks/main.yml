@@ -121,3 +121,4 @@
     mode: 0755
     owner: pi
     group: pi
+  become: yes
