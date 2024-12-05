@@ -2,6 +2,32 @@
 
 export LC_ALL=en_GB.UTF-8
 
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -m|--skip-manager)
+      SKIPMANAGER=1
+      shift # past argument
+      ;;
+    -l|--skip-logo)
+      SKIPLOGO=1
+      shift # past argument
+      ;;
+#    --numberoftimes)
+#      TIMES="$2"
+#      shift # past argument
+#      shift # past value
+#      ;;
+    -*|--*|*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+#    *)
+#      POSITIONAL_ARGS+=("$1") # save positional arg
+#      shift # past argument
+#      ;;
+  esac
+done
+
 # Check we are running under bash
 if [ ! "$BASH_VERSION" ] ; then
         echo "Not running under bash, exiting"
@@ -23,10 +49,14 @@ if ! grep -q "Debian" /etc/os-release ; then
 fi
 
 # Prompt for details
-echo -n "Manager URL: "
-read manager
-echo -n "Fetch logo file: "
-read logo
+if [[ -z $SKIPMANAGER ]]; then
+	echo -n "Manager URL: "
+	read manager
+fi
+if [[ -z $SKIPLOGO ]]; then
+	echo -n "Fetch logo file: "
+	read logo
+fi
 
 # Install dependencies
 echo "Installing dependencies..."
@@ -40,8 +70,12 @@ echo "Fetching app from github..."
 sudo mkdir /opt/pikiosk
 sudo chown pi: /opt/pikiosk
 git clone https://github.com/Pingue/pikiosk-localmanager.git /opt/pikiosk
-echo $manager > /opt/pikiosk/manager
-wget $logo -O /opt/pikiosk/logo.png
+if [[ -z $SKIPMANAGER ]]; then
+	echo $manager > /opt/pikiosk/manager
+fi
+if [[ -z $SKIPLOGO ]]; then
+	wget $logo -O /opt/pikiosk/logo.png
+fi
 
 # Run ansible playbook to set up the app
 echo "Running ansible playbook..."
