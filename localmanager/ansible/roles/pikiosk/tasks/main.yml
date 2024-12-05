@@ -4,6 +4,7 @@
     dest: /home/pi/.local/share/systemd/user/pikiosk.service
     src: /opt/pikiosk/files/pikiosk.service
     state: link
+    force: true
 
 - name: Start and enable pikiosk service
   ansible.builtin.systemd:
