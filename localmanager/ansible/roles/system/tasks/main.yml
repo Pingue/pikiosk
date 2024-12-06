@@ -67,6 +67,7 @@
     - { section: all, option: dtoverlay, value: disable-bt }
     - { section: all, option: dtoverlay, value: disable-wifi }
     - { section: all, option: disable_splash, value: 1 }
+    - { section: all, option: disable_hdmi, value: 1 }
     - { section: all, option: gpu_mem, value: 128 }
     - { section: all, option: avoid_warnings, value: 2 }
   become: yes
@@ -121,3 +122,4 @@
     mode: 0755
     owner: pi
     group: pi
+  become: yes

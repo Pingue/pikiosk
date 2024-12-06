@@ -30,6 +30,7 @@
     dest: /home/pi/.local/share/systemd/user/localmanager.service
     src: /opt/pikiosk/files/localmanager.service
     state: link
+    force: true
 
 - name: Start and enable localmanager service
   ansible.builtin.systemd:

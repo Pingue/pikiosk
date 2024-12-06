@@ -86,4 +86,4 @@ echo "Opening: $MYURL"
 echo chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized
 echo $DISPLAY
 
-chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized
+chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized --disable-features=HttpsFirstModeIncognito
