@@ -50,8 +50,7 @@
                     <th>URL</th>
                     <th>Rotation</th>
                     <th>Zoom</th>
-                    <th>Version</th>
-                    <th>OS</th>
+                    <th>Versions</th>
                     <th>Actions</th>
                     <th></th>
                 </tr>
@@ -67,8 +66,7 @@
                 <td><input disabled class="url" value="{{pi['url']}}"/></td>
                 <td><select disabled class="rotation"><option {% if pi['rotation'] == 0 %}selected{% endif %}>0</option><option {% if pi['rotation'] == 90 %}selected{% endif %}>90</option><option {% if pi['rotation'] == 180 %}selected{% endif %}>180</option><option {% if pi['rotation'] == 270 %}selected{% endif %}>270</option></select></td>
                 <td><input disabled class="zoom" type="number" value="{{pi['zoom']}}"/></td>
-                <td><div class="version">{{pi['version']}}</div></td>
-                <td><button type="button" class="os-popover btn btn-secondary" data-toggle="popover" title="OS Version" data-content="{{pi['os']}}">OS</button></button></td>
+                <td><button type="button" class="os-popover btn btn-secondary" data-toggle="popover" title="Versions" data-html="true" data-content="OS: {{pi['os']}} <br/>Pikiosk: {{pi['version']}} <br/>Hardware: {{pi['hardware']}}">Versions</button></button></td>
                 <td><button type="button" class="btn btn-primary refresh">Refresh</button> <button type="button" class="btn btn-warning reload">Reload</button> <button type="button" class="btn btn-danger reboot">Reboot</button> <button type="button" class="btn btn-info gitpull">Update</button></td>
                 <td><button type="button" class="btn btn-success edit">Edit</button> <button type="button" class="btn btn-danger delete">Delete</button></td>
             </tr>

@@ -20,7 +20,7 @@ def cursortodict(cursor):
 def get_db_connection():
     con = sqlite3.connect(db_path)
     con.row_factory = sqlite3.Row
-    con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT)')
+    con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT, hardware TEXT)')
     con.commit()
     return con
 
@@ -48,18 +48,19 @@ def checkin():
     ip = request.args.get('ip')
     version = request.args.get('version')
     os = request.args.get('os')
+    hardware = request.args.get('hardware')
 
     if mac == None or mac == "None" or mac == "":
         return '{"error": "No MAC address provided"}', 400
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     if pi:
         timestamp = int(time.time())
-        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=? WHERE mac=?', (ip, timestamp, version, os, mac))
+        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=?, hardware=? WHERE mac=?', (ip, timestamp, version, os, hardware, mac))
         con.commit()
     else:
         return '{"error": "MAC Address not configured"}', 400
 
-    return{"success": f"Checked in {mac} on {ip} on {version} on {os}"}
+    return{"success": f"Checked in {mac} on {ip} on {version} on {os} on {hardware}"}
 
 @app.route('/pi')
 def pi():
@@ -74,10 +75,10 @@ def pi():
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     timestamp = int(time.time())
     if pi:
-        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=? WHERE mac=?', (ip, timestamp, mac, version, os))
+        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=?, hardware=? WHERE mac=?', (ip, timestamp, version, os, hardware, mac))
         con.commit()
     else:
-        con.execute('INSERT INTO pis (mac, last_seen_ip, last_seen_timestamp, version, os) VALUES (?, ?, ?, ?, ?)', (mac, ip, timestamp, version, os))
+        con.execute('INSERT INTO pis (mac, last_seen_ip, last_seen_timestamp, version, os, hardware) VALUES (?, ?, ?, ?, ?, ?)', (mac, ip, timestamp, version, os, hardware))
         con.commit()
 
     cur = con.cursor()
