@@ -69,6 +69,7 @@ def pi():
     ip = request.args.get('ip')
     version = request.args.get('version')
     os = request.args.get('os')
+    hardware = request.args.get('hardware')
 
     if mac == None or mac == "None" or mac == "":
         return '{"error": "No MAC address provided"}', 400
