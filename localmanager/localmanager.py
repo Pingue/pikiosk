@@ -86,7 +86,7 @@ def gitpull():
 def configure():
     command = '/opt/pikiosk/setup.sh -l -m'
     subprocess.call(command.split(" "))
-    flash('configure in progress', 'success')
+    flash('configure completed', 'success')
     return redirect("/")
 
 if __name__ == "__main__":
