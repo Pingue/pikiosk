@@ -9,5 +9,7 @@ MYPIKIOSKVERSION=$(/usr/bin/git -C /opt/pikiosk/ describe --tags)
 echo "My Pikiosk Version: $MYPIKIOSKVERSION"
 MYOS=$(cat /etc/os-release | grep PRETTY_NAME | sed 's/.*AME..\(.*\).$/\1/')
 echo "My OS: $MYOS"
+MYHARDWARE=$(cat /proc/device-tree/model)
+echo "My Hardware: $MYHARDWARE"
 
-curl -G "$MANAGERURL/checkin?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION" --data-urlencode "os=$MYOS"
+curl -G "$MANAGERURL/checkin?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION&hardware=$MYHARDWARE" --data-urlencode "os=$MYOS"
