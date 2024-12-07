@@ -82,6 +82,13 @@ def gitpull():
     flash('git pull completed', 'success')
     return redirect("/")
 
+@app.route('/configure')
+def configure():
+    command = '/opt/pikiosk/setup.sh -l -m'
+    subprocess.call(command.split(" "))
+    flash('configure in progress', 'success')
+    return redirect("/")
+
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
