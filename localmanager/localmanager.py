@@ -89,6 +89,11 @@ def configure():
     flash('configure completed', 'success')
     return redirect("/")
 
+@app.route('/restartlocalmanager')
+def restartlocalmanager():
+    command = 'systemctl restart --user localmanager.service'
+    subprocess.call(command.split(" "))
+
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)

@@ -17,10 +17,10 @@ echo "My IP: $MYIP"
 MYMAC=$(ip addr show | grep $MYIP -B1 | head -n1 | sed 's/.*ether //' | sed 's/ .*//')
 echo "My MAC: $MYMAC"
 
-MYHARDWARE=$(cat /proc/device-tree/model)
+MYHARDWARE=$(tr -d '\0' < /proc/device-tree/model)
 echo "My Hardware: $MYHARDWARE"
 
-MYDATA=$(curl -G -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION&hardware=$MYHARDWARE" --data-urlencode "os=$MYOS")
+MYDATA=$(curl -G -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION" --data-urlencode "os=$MYOS" --data-urlencode "hardware=$MYHARDWARE")
 echo "My Data: $MYDATA"
 
 if [[ $MYDATA != "" ]]; then
