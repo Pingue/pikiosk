@@ -128,4 +128,4 @@
   ansible.builtin.package:
     name: labwc-prompt
     state: absent
-
+  become: yes
