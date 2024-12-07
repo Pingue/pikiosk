@@ -123,3 +123,9 @@
     owner: pi
     group: pi
   become: yes
+
+- name: Uninstall labwc-prompt
+  ansible.builtin.package:
+    name: labwc-prompt
+    state: absent
+
