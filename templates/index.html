@@ -6,13 +6,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
             
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <script src="static/index.js"></script>
         <script src="//cdn.datatables.net/2.1.7/js/dataTables.min.js"></script>
         <link rel="stylesheet" href="//cdn.datatables.net/2.1.7/css/dataTables.dataTables.min.css">
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <style>
             .footer {
                 position: fixed;
@@ -25,21 +24,39 @@
         </style>
         <script>
             $(document).ready(function() {
-                $('.pis').DataTable({pageLength: 100});
-                $('.macs').DataTable({pageLength: 100});
+                //$('.pis').DataTable({pageLength: 100});
+                //$('.macs').DataTable({pageLength: 100});
+                //$('.os-popover').popover({
+                //    container: 'body'
+                //});
+                var testtable = $('#testtable').DataTable({
+                    pageLength: 100,
+                    order: [[1, 'asc']],
+                    ajax: {
+                        url: '/getallpis',
+                        type: 'GET',
+                        dataSrc: ''
+                    },
+                    columns: [
+                        {data: 'mac'},
+                        {data: 'name'},
+                        {data: null, render: (data) => "<div style='text-align: center;'><p><a href='http://" + data.last_seen_ip + "'>"+data.last_seen_ip+"</a></p>" + new Date(data.last_seen_timestamp * 1000).toLocaleString() + "</div>"},
+                        {data: null, render: (data) => "<div style='text-align: center;'><a href='"+data.url+"'>"+data.url+"</a></div>"},
+                        {data: 'rotation'},
+                        {data: 'zoom'},
+                        {data: null, render: (data) => "<button type='button' class='btn-secondary' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-content='OS: "+data.os+" <br/>Pikiosk: "+data.version+" <br/>Hardware: "+data.hardware+"'>Versions</button>"},
+                        {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-primary refresh'>Refresh</button> <button type='button' class='btn btn-warning reload'>Reload</button> <button type='button' class='btn btn-danger reboot'>Reboot</button> <button type='button' class='btn btn-info gitpull'>Update</button></div>"},
+                    ]
+                });
             });
-            $(function () {
-                $('.os-popover').popover({
-                    container: 'body'
-                })
-            })
+            
         </script>
         <title>Pi Kiosk</title>
     </head>
     <body>
         <h1>Pi Kiosk</h1>
         <button type="button" class="btn btn-success add">Add</button>
-        <table class="table table-striped table-hover pis">
+<!--        <table class="table table-striped table-hover pis">
             <thead>
                 <tr>
                     <th></th>
@@ -75,8 +92,7 @@
         </table>
         <h3>Unconfigured MACs</h3>
         <table class="table table-striped table-hover macs">
-            <thead>2024-12-06 16:40:23.163 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/origin/master refs/remotes/origin/master [2ms]
-
+            <thead>
                 <tr>
                     <th>
                         MAC
@@ -105,7 +121,7 @@
             </tr>
             {% endif %}
             {% endfor %}
-        </table>
+        </table>-->
         <h3>Notes</h3> <!-- TODO: make this collapsable -->
         The action buttons require pikiosk to be on the same network as the pi.
         <ul>
@@ -114,6 +130,24 @@
             <li>Reboot - Reboot the pi. Fetches new information from pikiosk on startup</li>
             <li>Update - Pulls the latest version of pikiosk onto the pi from git.</li>
         </ul>
+        <h3>Test</h3>
+        <table id="testtable" class="stripe hover">
+            <thead>
+                <tr>
+                    <th>MAC</th>
+                    <th>Name</th>
+                    <th>Last Seen</th>
+                    <th>URL</th>
+                    <th>Rotation</th>
+                    <th>Zoom</th>
+                    <th>Versions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
         <footer class="footer">
             <div class="container">
                 <span class="text-muted">Pikiosk-central version: {{tag}}</span>
@@ -121,4 +155,3 @@
         </footer>
     </body>
 </html>
-2024-12-06 16:40:23.163 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/origin/master refs/remotes/origin/master [2ms]

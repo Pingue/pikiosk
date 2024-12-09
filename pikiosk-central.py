@@ -1,9 +1,6 @@
 from flask import Flask, render_template, request
-import atexit
-import logging
 import os
 import requests
-import shelve
 import sqlite3
 import time
 
@@ -165,6 +162,14 @@ def reboot():
 def gitpull():
     mac = request.args.get('mac')
     return performActionOnPi(mac, 'gitpull')
+
+@app.route('/getallpis')
+def getallpis():
+    con = get_db_connection()
+    cur = con.cursor()
+    cur.execute('SELECT * FROM pis')
+    data = cursortodict(cur)
+    return data
 
 def performActionOnPi(mac, action):
     con = get_db_connection()
