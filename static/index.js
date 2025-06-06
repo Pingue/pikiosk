@@ -140,9 +140,7 @@ $(document).on('click', '.forget', function(){
 });
 
 $(document).on('click', '.refresh', function(){ 
-    console.log($(this));
-    mac = $(this).parent().parent().find(".mac").val();
-
+    mac = $(this).closest("tr").children().first()[0].innerText;
     $.ajax({
         url: "refresh",
         type: "GET",
@@ -161,9 +159,7 @@ $(document).on('click', '.refresh', function(){
 
 
 $(document).on('click', '.reload', function(){ 
-    console.log($(this));
-    mac = $(this).parent().parent().find(".mac").val();
-
+    mac = $(this).closest("tr").children().first()[0].innerText;
     $.ajax({
         url: "reload",
         type: "GET",
@@ -182,9 +178,7 @@ $(document).on('click', '.reload', function(){
 
 
 $(document).on('click', '.reboot', function(){ 
-    console.log($(this));
-    mac = $(this).parent().parent().find(".mac").val();
-
+    mac = $(this).closest("tr").children().first()[0].innerText;
     $.ajax({
         url: "reboot",
         type: "GET",
@@ -203,9 +197,7 @@ $(document).on('click', '.reboot', function(){
 
 
 $(document).on('click', '.gitpull', function(){ 
-    console.log($(this));
-    mac = $(this).parent().parent().find(".mac").val();
-
+    mac = $(this).closest("tr").children().first()[0].innerText;
     $.ajax({
         url: "gitpull",
         type: "GET",
