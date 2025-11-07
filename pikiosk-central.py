@@ -146,21 +146,57 @@ def forget():
 @app.route('/refresh')
 def refresh():
     mac = request.args.get('mac')
+    if not mac:
+        name = request.args.get('name')
+        con = get_db_connection()
+        cur = con.cursor()
+        pi = cur.execute('SELECT * FROM pis WHERE name = ?', (name,)).fetchone()
+        if pi:
+            mac = pi['mac']
+        else:
+            return '{"error": "No Pi with that name"}', 404
     return performActionOnPi(mac, 'refresh')
 
 @app.route('/reload')
 def reload():
     mac = request.args.get('mac')
+    if not mac:
+        name = request.args.get('name')
+        con = get_db_connection()
+        cur = con.cursor()
+        pi = cur.execute('SELECT * FROM pis WHERE name = ?', (name,)).fetchone()
+        if pi:
+            mac = pi['mac']
+        else:
+            return '{"error": "No Pi with that name"}', 404
     return performActionOnPi(mac, 'reload')
 
 @app.route('/reboot')
 def reboot():
     mac = request.args.get('mac')
+    if not mac:
+        name = request.args.get('name')
+        con = get_db_connection()
+        cur = con.cursor()
+        pi = cur.execute('SELECT * FROM pis WHERE name = ?', (name,)).fetchone()
+        if pi:
+            mac = pi['mac']
+        else:
+            return '{"error": "No Pi with that name"}', 404
     return performActionOnPi(mac, 'reboot')
 
 @app.route('/gitpull')
 def gitpull():
     mac = request.args.get('mac')
+    if not mac:
+        name = request.args.get('name')
+        con = get_db_connection()
+        cur = con.cursor()
+        pi = cur.execute('SELECT * FROM pis WHERE name = ?', (name,)).fetchone()
+        if pi:
+            mac = pi['mac']
+        else:
+            return '{"error": "No Pi with that name"}', 404
     return performActionOnPi(mac, 'gitpull')
 
 @app.route('/getallpis')
