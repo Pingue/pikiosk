@@ -23,6 +23,8 @@ echo "My Hardware: $MYHARDWARE"
 MYDATA=$(curl -G -m5 -s "$MANAGERURL/pi?mac=$MYMAC&ip=$MYIP&version=$MYPIKIOSKVERSION" --data-urlencode "os=$MYOS" --data-urlencode "hardware=$MYHARDWARE")
 echo "My Data: $MYDATA"
 
+USING_CACHE=0
+
 if [[ $MYDATA != "" ]]; then
         echo "Response received, caching details"
         echo $MYDATA > /opt/pikiosk/cacheddetails
@@ -32,6 +34,7 @@ else
                 echo "But I found cached details I'm using that"
                 MYDATA=$(cat /opt/pikiosk/cacheddetails)
                 echo "My Data: $MYDATA"
+                USING_CACHE=1
         fi
 
 fi
@@ -73,6 +76,13 @@ if [[ $MYROTATION -eq "270" ]]; then
         ROTATE="right"
 fi
 xrandr --output HDMI-1 --rotate $ROTATE --mode 1920x1080 --refresh 59.940
+
+# Get current screen resolution
+SCREEN_RES=$(xrandr | grep '*' | awk '{print $1}' | head -n1)
+SCREEN_WIDTH=$(echo $SCREEN_RES | cut -d'x' -f1)
+SCREEN_HEIGHT=$(echo $SCREEN_RES | cut -d'x' -f2)
+echo "Screen resolution: ${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
+
 xset -dpms     # disable DPMS (Energy Star) features.
 xset s off     # disable screen saver
 xset s noblank # don't blank the video device
@@ -84,6 +94,21 @@ sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' ~/.config/chromium/Defaul
 rm ~/.config/chromium/SingletonLock
 
 xhost +si:localuser:pi
+
+# Show 1px amber border if using cached data
+if [[ $USING_CACHE -eq 1 ]]; then
+        echo "Displaying cache indicator border"
+        # Create a 1-pixel amber border overlay using ImageMagick
+        BORDER_WIDTH=$((SCREEN_WIDTH - 1))
+        BORDER_HEIGHT=$((SCREEN_HEIGHT - 1))
+        convert -size ${SCREEN_WIDTH}x${SCREEN_HEIGHT} xc:none \
+                -fill none -stroke '#FFA500' -strokewidth 1 \
+                -draw "rectangle 0,0 ${BORDER_WIDTH},${BORDER_HEIGHT}" \
+                /tmp/cache_border.png
+        
+        # Display as persistent overlay using feh
+        feh --geometry ${SCREEN_WIDTH}x${SCREEN_HEIGHT}+0+0 -x --borderless --on-root /tmp/cache_border.png &
+fi
 
 echo "Opening: $MYURL"
 echo chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized
