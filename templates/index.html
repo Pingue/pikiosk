@@ -49,7 +49,7 @@
                         dataSrc: ''
                     },
                     columns: [
-                        {data: 'mac'},
+                        {data: null, render: (data) => "<a href='/pi?mac=" + data.mac + "'>" + data.mac + "</a>"},
                         {data: 'name'},
                         {data: null, render: (data) => "<div style='text-align: center;'><p><a href='http://" + data.last_seen_ip + "'>"+data.last_seen_ip+"</a></p>" + new Date(data.last_seen_timestamp * 1000).toLocaleString() + "</div>"},
                         {data: null, render: (data) => "<div style='text-align: center;'><a href='"+data.url+"'>"+data.url+"</a></div>"},
