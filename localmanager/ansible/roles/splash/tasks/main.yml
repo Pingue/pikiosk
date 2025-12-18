@@ -49,9 +49,12 @@
     state: link
     force: yes
   become: yes
+  ignore_errors: yes
   with_items:
     - /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
     - /etc/xdg/pcmanfm/LXDE-pi/desktop-items-1.conf
+    - /etc/xdg/pcmanfm/default/desktop-items-0.conf
+    - /etc/xdg/pcmanfm/default/desktop-items-1.conf
 
 - name: Symlink splashscreen service
   ansible.builtin.file:
