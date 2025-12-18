@@ -111,7 +111,7 @@ if [[ $USING_CACHE -eq 1 ]]; then
 fi
 
 echo "Opening: $MYURL"
-echo chromium --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized
+echo chromium --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized --disable-features=HttpsFirstModeIncognito --password-store=basic
 echo $DISPLAY
 
-chromium --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized --disable-features=HttpsFirstModeIncognito
+chromium --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized --disable-features=HttpsFirstModeIncognito --password-store=basic
