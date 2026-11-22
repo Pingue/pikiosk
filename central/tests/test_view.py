@@ -1,5 +1,6 @@
 import importlib.util
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +13,9 @@ def _load_app(db_path):
     os.environ["DB_PATH"] = db_path
     spec = importlib.util.spec_from_file_location("pikiosk_central", _APP_PATH)
     module = importlib.util.module_from_spec(spec)
+    # Register the module so Flask resolves templates/static relative to this
+    # file rather than the current working directory.
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module.app
 
