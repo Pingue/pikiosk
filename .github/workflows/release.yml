@@ -74,7 +74,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-qemu-action@v4
       - uses: docker/setup-buildx-action@v4
       - name: Extract Docker metadata
         id: meta
@@ -108,7 +108,7 @@ jobs:
             --prefix="pikiosk-localmanager-${TAG}/" \
             -o "pikiosk-localmanager-${TAG}.tar.gz" \
             HEAD localmanager
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: localmanager-tarball
           path: pikiosk-localmanager-*.tar.gz
@@ -119,7 +119,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: localmanager-tarball
       - name: Create GitHub release
