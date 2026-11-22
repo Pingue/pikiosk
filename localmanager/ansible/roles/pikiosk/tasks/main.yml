@@ -2,7 +2,7 @@
 - name: Symlink pikiosk service
   ansible.builtin.file:
     dest: /home/pi/.local/share/systemd/user/pikiosk.service
-    src: /opt/pikiosk/files/pikiosk.service
+    src: /opt/pikiosk/localmanager/files/pikiosk.service
     state: link
     force: true
 
@@ -21,6 +21,6 @@
     minute: "*"
     hour: "*"
     user: pi
-    job: "/opt/pikiosk/checkin.sh"
+    job: "/opt/pikiosk/localmanager/checkin.sh"
     cron_file: pikiosk
   become: yes

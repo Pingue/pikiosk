@@ -69,7 +69,7 @@ pipx ensurepath
 echo "Fetching app from github..."
 sudo mkdir /opt/pikiosk
 sudo chown pi: /opt/pikiosk
-git clone https://github.com/Pingue/pikiosk-localmanager.git /opt/pikiosk
+git clone https://github.com/Pingue/pikiosk.git /opt/pikiosk
 if [[ -z $SKIPMANAGER ]]; then
 	echo $manager > /opt/pikiosk/manager
 fi
@@ -80,4 +80,4 @@ fi
 # Run ansible playbook to set up the app
 echo "Running ansible playbook..."
 /home/pi/.local/bin/ansible-galaxy collection install community.general
-/home/pi/.local/bin/ansible-playbook /opt/pikiosk/ansible/setup.yml
+/home/pi/.local/bin/ansible-playbook /opt/pikiosk/localmanager/ansible/setup.yml

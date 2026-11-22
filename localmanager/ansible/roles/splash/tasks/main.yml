@@ -44,7 +44,7 @@
 
 - name: Symlink desktop configuration
   ansible.builtin.file:
-    src: /opt/pikiosk/files/desktop-items-0.conf
+    src: /opt/pikiosk/localmanager/files/desktop-items-0.conf
     dest: "{{item}}"
     state: link
     force: yes
@@ -58,7 +58,7 @@
 
 - name: Symlink splashscreen service
   ansible.builtin.file:
-    src: /opt/pikiosk/files/splashscreen.service
+    src: /opt/pikiosk/localmanager/files/splashscreen.service
     dest: /home/pi/.local/share/systemd/user/splashscreen.service
     state: link
     force: yes  

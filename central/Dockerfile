@@ -12,6 +12,10 @@ RUN pip install -r requirements.txt
 
 RUN apk update && apk add git
 
+# release version, passed in by the release workflow (shown in the UI)
+ARG VERSION=unknown
+ENV PIKIOSK_VERSION=$VERSION
+
 # copy every content from the local file to the image
 COPY . /app
 

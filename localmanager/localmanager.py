@@ -2,10 +2,6 @@ from flask import Flask, flash, render_template, request, redirect
 import json
 import netifaces
 import os
-import random
-import re
-import socket
-import string
 import subprocess
 
 
@@ -84,7 +80,7 @@ def gitpull():
 
 @app.route('/configure')
 def configure():
-    command = '/opt/pikiosk/setup.sh -l -m'
+    command = '/opt/pikiosk/localmanager/setup.sh -l -m'
     subprocess.call(command.split(" "))
     flash('configure completed', 'success')
     return redirect("/")

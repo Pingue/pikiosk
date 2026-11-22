@@ -59,7 +59,7 @@ echo "URL: $MYURL"
 echo "Rotation: $MYROTATION"
 echo "Zoom: $MYZOOM"
 
-if [ -n $MYNAME ]; then
+if [ -n "$MYNAME" ]; then
         sudo hostnamectl set-hostname "pikiosk-$MYNAME"
 fi
 

@@ -199,3 +199,9 @@ tags
 # End of https://www.toptal.com/developers/gitignore/api/vim,python
 
 venv/
+
+# pikiosk-localmanager runtime files (live in the repo root on the Pi)
+manager
+cacheddetails
+logo.png
+localmanager.sock

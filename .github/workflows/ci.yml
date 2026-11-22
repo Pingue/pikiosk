@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  pull_request:
+  # Reused by release.yml so a release can't ship without passing CI.
+  workflow_call:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same PR.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title:
+    # GitVersion derives the next version from conventional-commit messages
+    # (feat: / fix: / feat!: ...), so squash-merge titles must follow them.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title is a conventional commit
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          re='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?!?: .+'
+          if [[ ! "$TITLE" =~ $re ]]; then
+            echo "::error::PR title must look like 'feat: add thing' or 'fix(central): handle X' (got: $TITLE)"
+            exit 1
+          fi
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install linters
+        run: pip install ruff ansible-lint ansible-core
+      - name: ruff
+        run: ruff check .
+      - name: shellcheck
+        # Errors only for now; the existing scripts have style warnings.
+        run: shellcheck -S error localmanager/*.sh
+      - name: ansible-lint
+        working-directory: localmanager/ansible
+        run: |
+          ansible-galaxy collection install community.general
+          ansible-lint --profile min setup.yml
+
+  test-central:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: central/requirements.txt
+      - run: pip install -r central/requirements.txt pytest
+      - run: python -m pytest -q central/tests
+
+  test-localmanager:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: localmanager/requirements.txt
+      - run: pip install -r localmanager/requirements.txt pytest
+      - run: python -m pytest -q localmanager/tests
+
+  docker-build:
+    # Build only (no push) to catch Dockerfile / dependency breakage before release.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: ./central
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,7 @@
+# Only catch real errors (syntax errors, undefined names, unused imports).
+# Tighten over time.
+line-length = 120
+extend-exclude = ["venv"]
+
+[lint]
+select = ["E9", "F"]
