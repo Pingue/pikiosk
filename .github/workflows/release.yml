@@ -1,0 +1,136 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  semver:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Only one semver job at a time, across all runs, so two quick merges can't
+    # compute the same version or race to create the same tag. Queue rather than
+    # cancel so a run is never killed half-way through tagging.
+    concurrency:
+      group: semver-${{ github.repository }}
+      cancel-in-progress: false
+    outputs:
+      version: ${{ steps.gitversion.outputs.semVer }}
+      tag: v${{ steps.gitversion.outputs.semVer }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gittools/actions/gitversion/setup@v5.0.0
+        with:
+          versionSpec: '6.x'
+      - name: Calculate version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v5.0.0
+        with:
+          useConfigFile: "true"
+          configFilePath: "GitVersion.yml"
+      - name: Create tag (if it doesn't exist)
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const tag = 'v${{ steps.gitversion.outputs.semVer }}';
+            try {
+              await github.rest.git.getRef({ ...context.repo, ref: `tags/${tag}` });
+              core.info(`${tag} already exists, nothing to do`);
+            } catch (e) {
+              if (e.status !== 404) throw e;
+              await github.rest.git.createRef({
+                ...context.repo,
+                ref: `refs/tags/${tag}`,
+                sha: context.sha,
+              });
+              core.info(`Created ${tag}`);
+            }
+
+  docker:
+    needs: semver
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Lowercase image name
+        run: echo "IMG=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v4
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMG }}
+          tags: |
+            type=raw,value=${{ needs.semver.outputs.version }}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v7
+        with:
+          context: ./central
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: VERSION=${{ needs.semver.outputs.tag }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  package:
+    needs: semver
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build localmanager tarball
+        env:
+          TAG: ${{ needs.semver.outputs.tag }}
+        run: |
+          git archive --format=tar.gz \
+            --prefix="pikiosk-localmanager-${TAG}/" \
+            -o "pikiosk-localmanager-${TAG}.tar.gz" \
+            HEAD localmanager
+      - uses: actions/upload-artifact@v4
+        with:
+          name: localmanager-tarball
+          path: pikiosk-localmanager-*.tar.gz
+
+  release:
+    needs: [semver, docker, package]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: localmanager-tarball
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.semver.outputs.tag }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists"
+          else
+            gh release create "$TAG" --verify-tag --generate-notes \
+              --title "$TAG" pikiosk-localmanager-*.tar.gz
+          fi

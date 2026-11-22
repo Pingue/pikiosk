@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  roles:
+    - system
+    - splash
+    - pikiosk
+    - localmanager

@@ -1,0 +1,4 @@
+---
+- name: update-initramfs
+  ansible.builtin.command: update-initramfs -u
+  become: yes

@@ -1,21 +1,19 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/"
+    directories: ["/central", "/localmanager"]
     schedule:
       interval: "weekly"
-    assignees:
-      - "Pingue"
+    assignees: ["Pingue"]
     groups:
       pip:
         patterns: ["*"]
 
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/central"
     schedule:
       interval: "weekly"
-    assignees:
-      - "Pingue"
+    assignees: ["Pingue"]
     groups:
       docker:
         patterns: ["*"]
@@ -24,8 +22,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    assignees:
-      - "Pingue"
+    assignees: ["Pingue"]
     groups:
       actions:
         patterns: ["*"]

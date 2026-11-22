@@ -22,6 +22,8 @@ def get_db_connection():
     return con
 
 def get_current_git_tag():
+    if os.environ.get('PIKIOSK_VERSION'):
+        return os.environ['PIKIOSK_VERSION']
     return os.popen('git describe --tags').read().strip()
 
 @app.route('/')
