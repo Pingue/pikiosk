@@ -1,0 +1,13 @@
+[Unit] 
+Description=Pi Kiosk
+After=network.target
+
+[Service]
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+ExecStart=/opt/pikiosk/kiosk.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

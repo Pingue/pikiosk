@@ -1,0 +1,14 @@
+[Unit] 
+Description=Pi Localmanager
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+WorkingDirectory=/opt/pikiosk
+ExecStartPre=/bin/nm-online -q
+ExecStart=/opt/pikiosk/venv/bin/uwsgi --ini uwsgi.ini -H /opt/pikiosk/venv
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
