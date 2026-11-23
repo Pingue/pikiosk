@@ -1,11 +1,13 @@
-from flask import Flask, render_template, request
+from flask import Flask, g, render_template, request
 import os
+import re
 import requests
 import sqlite3
 import time
 
 app = Flask(__name__)
 db_path = os.environ.get('DB_PATH', '/data/db.sqlite3')
+MAC_PATTERN = re.compile(r'^([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$')
 
 def cursortodict(cursor):
     desc = cursor.description
@@ -15,11 +17,19 @@ def cursortodict(cursor):
     return data
 
 def get_db_connection():
-    con = sqlite3.connect(db_path)
-    con.row_factory = sqlite3.Row
-    con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT, hardware TEXT)')
-    con.commit()
-    return con
+    if 'db' not in g:
+        con = sqlite3.connect(db_path)
+        con.row_factory = sqlite3.Row
+        con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT, hardware TEXT)')
+        con.commit()
+        g.db = con
+    return g.db
+
+@app.teardown_appcontext
+def close_db_connection(exception):
+    con = g.pop('db', None)
+    if con is not None:
+        con.close()
 
 def get_current_git_tag():
     if os.environ.get('PIKIOSK_VERSION'):
@@ -46,7 +56,7 @@ def checkin():
     mac = request.args.get('mac')
     ip = request.args.get('ip')
     version = request.args.get('version')
-    os = request.args.get('os')
+    os_param = request.args.get('os')
     hardware = request.args.get('hardware')
 
     if mac == None or mac == "None" or mac == "":
@@ -54,12 +64,12 @@ def checkin():
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     if pi:
         timestamp = int(time.time())
-        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=?, hardware=? WHERE mac=?', (ip, timestamp, version, os, hardware, mac))
+        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=?, hardware=? WHERE mac=?', (ip, timestamp, version, os_param, hardware, mac))
         con.commit()
     else:
         return '{"error": "MAC Address not configured"}', 400
 
-    return{"success": f"Checked in {mac} on {ip} on {version} on {os} on {hardware}"}
+    return{"success": f"Checked in {mac} on {ip} on {version} on {os_param} on {hardware}"}
 
 @app.route('/pi')
 def pi():
@@ -67,7 +77,7 @@ def pi():
     mac = request.args.get('mac')
     ip = request.args.get('ip')
     version = request.args.get('version')
-    os = request.args.get('os')
+    os_param = request.args.get('os')
     hardware = request.args.get('hardware')
 
     if mac == None or mac == "None" or mac == "":
@@ -75,10 +85,10 @@ def pi():
     pi = con.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
     timestamp = int(time.time())
     if pi:
-        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=?, hardware=? WHERE mac=?', (ip, timestamp, version, os, hardware, mac))
+        con.execute('UPDATE pis SET last_seen_ip=?, last_seen_timestamp=?, version=?, os=?, hardware=? WHERE mac=?', (ip, timestamp, version, os_param, hardware, mac))
         con.commit()
     else:
-        con.execute('INSERT INTO pis (mac, last_seen_ip, last_seen_timestamp, version, os, hardware) VALUES (?, ?, ?, ?, ?, ?)', (mac, ip, timestamp, version, os, hardware))
+        con.execute('INSERT INTO pis (mac, last_seen_ip, last_seen_timestamp, version, os, hardware) VALUES (?, ?, ?, ?, ?, ?)', (mac, ip, timestamp, version, os_param, hardware))
         con.commit()
 
     cur = con.cursor()
@@ -86,7 +96,7 @@ def pi():
 
     pi = cursortodict(cur)[0]
     if pi["url"] == None:
-        return '{"error": "No configuration for a pi with that MAC address"}'
+        return '{"error": "No configuration for a pi with that MAC address"}', 404
     pi["status"] = 0
     return pi
 
@@ -105,7 +115,9 @@ def update():
 
     
     if originalmac:
-        con.execute('UPDATE pis SET mac=?, name=?, url=?, rotation=?, zoom=? WHERE mac=?', (mac, name, url, rotation, zoom, originalmac))
+        cur = con.execute('UPDATE pis SET mac=?, name=?, url=?, rotation=?, zoom=? WHERE mac=?', (mac, name, url, rotation, zoom, originalmac))
+        if cur.rowcount == 0:
+            return '{"error": "No Pi with that original MAC address"}', 404
     else:
         con.execute('INSERT INTO pis (mac, name, url, rotation, zoom) VALUES (?, ?, ?, ?, ?)', (mac, name, url, rotation, zoom))
 
@@ -210,9 +222,13 @@ def getallpis():
     return data
 
 def performActionOnPi(mac, action):
+    if not mac or not MAC_PATTERN.match(mac):
+        return '{"error": "Invalid MAC address"}', 400
     con = get_db_connection()
     cur = con.cursor()
     pi = cur.execute('SELECT * FROM pis WHERE mac = ?', (mac,)).fetchone()
+    if pi is None:
+        return '{"error": "No Pi with that MAC address"}', 404
     ip = pi['last_seen_ip']
 
     if ip == None or ip == "None" or ip == "":

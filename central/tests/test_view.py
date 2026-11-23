@@ -41,7 +41,19 @@ class TestView(unittest.TestCase):
 
     def test_pi_registers_unconfigured_device(self):
         response = self.client.get('/pi?mac=aa:bb:cc:dd:ee:ff&ip=10.0.0.2')
+        self.assertEqual(response.status_code, 404)
         self.assertIn("No configuration", response.get_data(as_text=True))
+
+    def test_action_rejects_invalid_mac(self):
+        self.assertEqual(self.client.get('/reboot?mac=nope').status_code, 400)
+
+    def test_action_unknown_mac(self):
+        self.assertEqual(self.client.get('/reboot?mac=aa:bb:cc:dd:ee:ff').status_code, 404)
+
+    def test_update_unknown_originalmac(self):
+        response = self.client.get('/update?originalmac=11:22:33:44:55:66'
+                                   '&mac=aa:bb:cc:dd:ee:ff&name=x&url=http://e.com')
+        self.assertEqual(response.status_code, 404)
 
     def test_update_then_pi_returns_config(self):
         self.client.get('/update?mac=aa:bb:cc:dd:ee:ff&name=lobby'
