@@ -53,11 +53,23 @@ MYNAME=$(echo "$MYDATA" | jq -r .name)
 MYURL=$(echo "$MYDATA" | jq -r .url)
 MYROTATION=$(echo "$MYDATA" | jq -r .rotation)
 MYZOOM=$(echo "$MYDATA" | jq -r .zoom)
+MYFREQUENCY=$(echo "$MYDATA" | jq -r .frequency)
 
 echo "Name: $MYNAME"
 echo "URL: $MYURL"
 echo "Rotation: $MYROTATION"
 echo "Zoom: $MYZOOM"
+
+if ! awk -v z="$MYZOOM" 'BEGIN { exit !(z ~ /^[0-9]*\.?[0-9]+$/ && z+0 >= 0.1 && z+0 <= 5) }'; then
+        echo "Zoom '$MYZOOM' is missing or out of range (0.1-5), using 1"
+        MYZOOM=1
+fi
+
+echo "Frequency: $MYFREQUENCY"
+if ! awk -v f="$MYFREQUENCY" 'BEGIN { exit !(f ~ /^[0-9]*\.?[0-9]+$/ && f+0 >= 1 && f+0 <= 240) }'; then
+        echo "Frequency '$MYFREQUENCY' is missing or out of range (1-240), using 59.940"
+        MYFREQUENCY=59.940
+fi
 
 if [ -n "$MYNAME" ]; then
         sudo hostnamectl set-hostname "pikiosk-$MYNAME"
@@ -75,7 +87,10 @@ fi
 if [[ $MYROTATION -eq "270" ]]; then
         ROTATE="right"
 fi
-xrandr --output HDMI-1 --rotate $ROTATE --mode 1920x1080 --refresh 59.940
+if ! xrandr --output HDMI-1 --rotate $ROTATE --mode 1920x1080 --refresh "$MYFREQUENCY"; then
+        echo "Display rejected ${MYFREQUENCY}Hz, letting xrandr pick the rate"
+        xrandr --output HDMI-1 --rotate $ROTATE --mode 1920x1080
+fi
 
 # Get current screen resolution
 SCREEN_RES=$(xrandr | grep '*' | awk '{print $1}' | head -n1)
@@ -111,7 +126,8 @@ if [[ $USING_CACHE -eq 1 ]]; then
 fi
 
 echo "Opening: $MYURL"
-echo chromium --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized --disable-features=HttpsFirstModeIncognito --password-store=basic
+CHROMIUM_ARGS=(--noerrdialogs --disable-infobars --kiosk --incognito --app="$MYURL" --start-fullscreen --start-maximized --disable-features=HttpsFirstModeIncognito --password-store=basic --force-device-scale-factor="$MYZOOM")
+echo chromium "${CHROMIUM_ARGS[@]}"
 echo $DISPLAY
 
-chromium --noerrdialogs --disable-infobars --kiosk --incognito --app=$MYURL --start-fullscreen --start-maximized --disable-features=HttpsFirstModeIncognito --password-store=basic
+chromium "${CHROMIUM_ARGS[@]}"

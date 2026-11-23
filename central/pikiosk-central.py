@@ -20,7 +20,10 @@ def get_db_connection():
     if 'db' not in g:
         con = sqlite3.connect(db_path)
         con.row_factory = sqlite3.Row
-        con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT, hardware TEXT)')
+        con.execute('CREATE TABLE IF NOT EXISTS pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT, hardware TEXT, frequency REAL)')
+        columns = [row['name'] for row in con.execute('PRAGMA table_info(pis)')]
+        if 'frequency' not in columns:
+            con.execute('ALTER TABLE pis ADD COLUMN frequency REAL')
         con.commit()
         g.db = con
     return g.db
@@ -109,17 +112,18 @@ def update():
     name = request.args.get('name')
     rotation = request.args.get('rotation')
     zoom = request.args.get('zoom')
+    frequency = request.args.get('frequency')
 
     if mac == None or mac == "None" or mac == "":
         return '{"error": "No MAC address provided"}', 400
 
     
     if originalmac:
-        cur = con.execute('UPDATE pis SET mac=?, name=?, url=?, rotation=?, zoom=? WHERE mac=?', (mac, name, url, rotation, zoom, originalmac))
+        cur = con.execute('UPDATE pis SET mac=?, name=?, url=?, rotation=?, zoom=?, frequency=? WHERE mac=?', (mac, name, url, rotation, zoom, frequency, originalmac))
         if cur.rowcount == 0:
             return '{"error": "No Pi with that original MAC address"}', 404
     else:
-        con.execute('INSERT INTO pis (mac, name, url, rotation, zoom) VALUES (?, ?, ?, ?, ?)', (mac, name, url, rotation, zoom))
+        con.execute('INSERT INTO pis (mac, name, url, rotation, zoom, frequency) VALUES (?, ?, ?, ?, ?, ?)', (mac, name, url, rotation, zoom, frequency))
 
     con.commit()
     cur = con.cursor()
@@ -138,7 +142,7 @@ def delete():
     if pi == None:
         return '{"error": "No Pi with that MAC address"}', 404
 
-    con.execute('UPDATE pis SET name=null, url=null, rotation=null, zoom=null  WHERE mac = ?', (mac,))
+    con.execute('UPDATE pis SET name=null, url=null, rotation=null, zoom=null, frequency=null WHERE mac = ?', (mac,))
     con.commit()
     return '{"success": "Deleted"}'
 
