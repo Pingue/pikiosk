@@ -40,6 +40,9 @@ def home():
 @app.route('/save')
 def update():
     manager = request.args.get('manager')
+    if manager is None:
+        flash('Manager URL is required', 'danger')
+        return redirect("/")
     f = open("./manager", "w")
     f.write(manager)
     f.close()
@@ -89,6 +92,8 @@ def configure():
 def restartlocalmanager():
     command = 'systemctl restart --user localmanager.service'
     subprocess.call(command.split(" "))
+    flash('Localmanager restarted', 'info')
+    return redirect("/")
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))

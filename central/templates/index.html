@@ -49,13 +49,14 @@
                         dataSrc: ''
                     },
                     columns: [
-                        {data: null, render: (data) => "<a href='/pi?mac=" + data.mac + "'>" + data.mac + "</a>"},
-                        {data: 'name'},
-                        {data: null, render: (data) => "<div style='text-align: center;'><p><a href='http://" + data.last_seen_ip + "'>"+data.last_seen_ip+"</a></p>" + new Date(data.last_seen_timestamp * 1000).toLocaleString() + "</div>"},
-                        {data: null, render: (data) => "<div style='text-align: center;'><a href='"+data.url+"'>"+data.url+"</a></div>"},
-                        {data: 'rotation'},
-                        {data: 'zoom'},
-                        {data: null, render: (data) => "<button type='button' class='btn btn-secondary version-popover' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-html='true' data-bs-content='OS: "+data.os+" <br/>Pikiosk: "+data.version+" <br/>Hardware: "+data.hardware+"'>Versions</button>"},
+                        {data: null, render: (data) => "<a href='/pi?mac=" + escapeHtml(encodeURIComponent(data.mac)) + "'>" + escapeHtml(data.mac) + "</a>"},
+                        {data: 'name', render: (data) => escapeHtml(data)},
+                        {data: null, render: (data) => "<div style='text-align: center;'><p><a href='" + safeHref("http://" + data.last_seen_ip) + "'>" + escapeHtml(data.last_seen_ip) + "</a></p>" + new Date(data.last_seen_timestamp * 1000).toLocaleString() + "</div>"},
+                        {data: null, render: (data) => "<div style='text-align: center;'><a href='" + safeHref(data.url) + "'>" + escapeHtml(data.url) + "</a></div>"},
+                        {data: 'rotation', render: (data) => escapeHtml(data)},
+                        {data: 'zoom', render: (data) => escapeHtml(data)},
+                        // Popover content is parsed as HTML, so values are escaped once for the HTML and again for the attribute.
+                        {data: null, render: (data) => "<button type='button' class='btn btn-secondary version-popover' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-html='true' data-bs-content='" + escapeHtml("OS: " + escapeHtml(data.os) + " <br/>Pikiosk: " + escapeHtml(data.version) + " <br/>Hardware: " + escapeHtml(data.hardware)) + "'>Versions</button>"},
                         {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-primary refresh'>Refresh</button> <button type='button' class='btn btn-warning reload'>Reload</button> <button type='button' class='btn btn-danger reboot'>Reboot</button> <button type='button' class='btn btn-info gitpull'>Update</button></div>"},
                         {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-success edit-entry'>Edit</button> <button type='button' class='btn btn-danger delete-entry'>Delete</button></div>"},
                     ],
