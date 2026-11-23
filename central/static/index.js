@@ -291,7 +291,53 @@ $(document).on('click', '.gitpull', function(){
     });
 });
 
-$(document).on('click', '.edit-entry', function(){ 
+$(document).on('click', '.configure-pi', function(){
+    var table = $('#testtable').DataTable();
+    var data = table.row($(this).closest('tr')).data();
+
+    if (!confirm("Run configure (ansible) on " + (data.name || data.mac) + "? This takes several minutes.")) {
+        return;
+    }
+
+    $.ajax({
+        url: "configure",
+        type: "GET",
+        data: {
+            mac: data.mac,
+        },
+        success: function(result){
+            console.log("Configure started");
+        },
+        error: function(result){
+            alert("Error starting configure: " + result.responseText);
+        }
+    });
+});
+
+$(document).on('click', '.shutdown', function(){
+    var table = $('#testtable').DataTable();
+    var data = table.row($(this).closest('tr')).data();
+
+    if (!confirm("Shut down " + (data.name || data.mac) + "? It will need to be power-cycled to come back.")) {
+        return;
+    }
+
+    $.ajax({
+        url: "shutdown",
+        type: "GET",
+        data: {
+            mac: data.mac,
+        },
+        success: function(result){
+            console.log("Shutting down");
+        },
+        error: function(result){
+            alert("Error shutting down: " + result.responseText);
+        }
+    });
+});
+
+$(document).on('click', '.edit-entry', function(){
     var table = $('#testtable').DataTable();
     var row = table.row($(this).closest('tr'));
     var data = row.data();

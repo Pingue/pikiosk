@@ -4,6 +4,9 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
+
+import requests
 
 # The module name contains a hyphen, so it can't be imported normally.
 _APP_PATH = Path(__file__).resolve().parent.parent / "pikiosk-central.py"
@@ -49,6 +52,27 @@ class TestView(unittest.TestCase):
 
     def test_action_unknown_mac(self):
         self.assertEqual(self.client.get('/reboot?mac=aa:bb:cc:dd:ee:ff').status_code, 404)
+
+    def _register_pi(self, mac='aa:bb:cc:dd:ee:ff'):
+        self.client.get(f'/pi?mac={mac}&ip=10.0.0.2')
+
+    def test_shutdown_and_configure_call_pi(self):
+        self._register_pi()
+        with mock.patch('requests.get') as get:
+            for action in ('shutdown', 'configure'):
+                response = self.client.get(f'/{action}?mac=aa:bb:cc:dd:ee:ff')
+                self.assertEqual(response.status_code, 200)
+                get.assert_called_with(f'http://10.0.0.2/{action}', timeout=(5, 10))
+
+    def test_action_read_timeout_is_accepted(self):
+        self._register_pi()
+        with mock.patch('requests.get', side_effect=requests.exceptions.ReadTimeout):
+            self.assertEqual(self.client.get('/configure?mac=aa:bb:cc:dd:ee:ff').status_code, 202)
+
+    def test_action_unreachable_pi(self):
+        self._register_pi()
+        with mock.patch('requests.get', side_effect=requests.exceptions.ConnectionError):
+            self.assertEqual(self.client.get('/shutdown?mac=aa:bb:cc:dd:ee:ff').status_code, 502)
 
     def test_update_unknown_originalmac(self):
         response = self.client.get('/update?originalmac=11:22:33:44:55:66'

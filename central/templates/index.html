@@ -57,7 +57,7 @@
                         {data: 'zoom', render: DataTable.render.text()},
                         // Popover content is parsed as HTML, so values are escaped once for the HTML and again for the attribute.
                         {data: null, render: (data) => "<button type='button' class='btn btn-secondary version-popover' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-html='true' data-bs-content='" + escapeHtml("OS: " + escapeHtml(data.os) + " <br/>Pikiosk: " + escapeHtml(data.version) + " <br/>Hardware: " + escapeHtml(data.hardware)) + "'>Versions</button>"},
-                        {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-primary refresh'>Refresh</button> <button type='button' class='btn btn-warning reload'>Reload</button> <button type='button' class='btn btn-danger reboot'>Reboot</button> <button type='button' class='btn btn-info gitpull'>Update</button></div>"},
+                        {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-primary refresh'>Refresh</button> <button type='button' class='btn btn-warning reload'>Reload</button> <button type='button' class='btn btn-danger reboot'>Reboot</button> <button type='button' class='btn btn-info gitpull'>Update</button> <button type='button' class='btn btn-secondary configure-pi'>Configure</button> <button type='button' class='btn btn-dark shutdown'>Shutdown</button></div>"},
                         {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-success edit-entry'>Edit</button> <button type='button' class='btn btn-danger delete-entry'>Delete</button></div>"},
                     ],
                     drawCallback: function() {
@@ -233,6 +233,8 @@
             <li>Reload - Restart the pikiosk service running on the pi. Restarts the browser and fetches new information from pikiosk</li>
             <li>Reboot - Reboot the pi. Fetches new information from pikiosk on startup</li>
             <li>Update - Pulls the latest version of pikiosk onto the pi from git.</li>
+            <li>Configure - Runs the ansible setup on the pi to apply recent pikiosk changes. Takes several minutes.</li>
+            <li>Shutdown - Powers off the pi. It will need to be power-cycled to come back.</li>
         </ul>
         <h3>Test</h3>
         <table id="testtable" class="stripe hover">
