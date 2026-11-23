@@ -5,6 +5,9 @@ After=network.target
 [Service]
 Environment=DISPLAY=:0
 Environment=XAUTHORITY=/home/pi/.Xauthority
+# User units can't order after the system network-online.target, so wait explicitly.
+# "-" lets kiosk.sh still start (and fall back to cached details) if the network never comes up.
+ExecStartPre=-/bin/nm-online -q -t 60
 ExecStart=/opt/pikiosk/localmanager/kiosk.sh
 Restart=always
 RestartSec=10

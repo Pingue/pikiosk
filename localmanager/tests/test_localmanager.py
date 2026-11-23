@@ -54,6 +54,10 @@ class TestLocalManager(unittest.TestCase):
         localmanager.subprocess.call.assert_called_once_with(
             ["systemctl", "restart", "--user", "pikiosk.service"])
 
+    def test_shutdown_powers_off(self):
+        self.assertEqual(self.client.get("/shutdown").status_code, 302)
+        localmanager.subprocess.call.assert_called_once_with(["poweroff"])
+
 
 if __name__ == "__main__":
     unittest.main()

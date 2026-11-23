@@ -60,6 +60,12 @@ def reboot():
     flash('Pi rebooting, please refresh the page in a short while', 'warning')
     return redirect("/")
 
+@app.route('/shutdown')
+def shutdown():
+    subprocess.call(['poweroff'])
+    flash('Pi shutting down', 'warning')
+    return redirect("/")
+
 @app.route('/reload')
 def reload():
     command = 'systemctl restart --user pikiosk.service'

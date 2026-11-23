@@ -213,6 +213,34 @@ def gitpull():
             return '{"error": "No Pi with that name"}', 404
     return performActionOnPi(mac, 'gitpull')
 
+@app.route('/shutdown')
+def shutdown():
+    mac = request.args.get('mac')
+    if not mac:
+        name = request.args.get('name')
+        con = get_db_connection()
+        cur = con.cursor()
+        pi = cur.execute('SELECT * FROM pis WHERE name = ?', (name,)).fetchone()
+        if pi:
+            mac = pi['mac']
+        else:
+            return '{"error": "No Pi with that name"}', 404
+    return performActionOnPi(mac, 'shutdown')
+
+@app.route('/configure')
+def configure():
+    mac = request.args.get('mac')
+    if not mac:
+        name = request.args.get('name')
+        con = get_db_connection()
+        cur = con.cursor()
+        pi = cur.execute('SELECT * FROM pis WHERE name = ?', (name,)).fetchone()
+        if pi:
+            mac = pi['mac']
+        else:
+            return '{"error": "No Pi with that name"}', 404
+    return performActionOnPi(mac, 'configure')
+
 @app.route('/getallpis')
 def getallpis():
     con = get_db_connection()
@@ -236,7 +264,13 @@ def performActionOnPi(mac, action):
     
     url = 'http://' + ip + '/' + action
     print(url)
-    requests.get(url)
+    try:
+        requests.get(url, timeout=(5, 10))
+    except requests.exceptions.ReadTimeout:
+        # Long-running actions (configure) and power actions may never reply.
+        return '{"success": "Action sent, no response from Pi yet"}', 202
+    except requests.exceptions.RequestException:
+        return '{"error": "Could not reach Pi"}', 502
     return '{"success": "Action performed"}'
 
 if __name__ == "__main__":
