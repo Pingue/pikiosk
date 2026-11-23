@@ -27,14 +27,16 @@ def home():
         url = cachedDetails['url']
         rotation = cachedDetails['rotation']
         zoom = cachedDetails['zoom']
+        frequency = cachedDetails.get('frequency') or "59.94"
     except:
         cachedDetails = { "last_seen_ip": "", "last_seen_timestamp": 0, "name": "", "rotation": 0, "status": 0, "url": "", "zoom": ""}
         name = "ERROR"
         url = "ERROR"
         rotation = 0
         zoom = 0
+        frequency = "59.94"
 
-    return render_template('index.html', manager=manager, mac=macaddr, name=name, url=url, rotation=rotation, zoom=zoom, tag=tag)
+    return render_template('index.html', manager=manager, mac=macaddr, name=name, url=url, rotation=rotation, zoom=zoom, frequency=frequency, tag=tag)
     
 
 @app.route('/save')
@@ -50,7 +52,8 @@ def update():
     name = request.args.get('name')
     rotation = request.args.get('rotation')
     zoom = request.args.get('zoom')
-    cachedDetails = {'name': name, 'url': url, 'rotation': rotation, 'zoom': zoom}
+    frequency = request.args.get('frequency')
+    cachedDetails = {'name': name, 'url': url, 'rotation': rotation, 'zoom': zoom, 'frequency': frequency}
     json.dump(cachedDetails, open('./cacheddetails', 'w'))
     return redirect("/")
 

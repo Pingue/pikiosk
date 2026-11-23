@@ -14,6 +14,28 @@ function safeHref(url) {
     return /^https?:\/\//i.test(url || "") ? escapeHtml(url) : "#";
 }
 
+var FREQUENCIES = ["23.976", "24", "25", "29.97", "30", "50", "59.94", "60"];
+var DEFAULT_FREQUENCY = "59.94";
+
+$(function() {
+    $('.frequency-select').each(function() {
+        var select = $(this);
+        FREQUENCIES.forEach(function(freq) {
+            var option = new Option(freq + " Hz", freq);
+            option.defaultSelected = freq === DEFAULT_FREQUENCY;
+            select.append(option);
+        });
+    });
+});
+
+function setFrequency(select, value) {
+    value = (value === null || value === undefined || value === "") ? DEFAULT_FREQUENCY : String(value);
+    if (select.find("option").filter(function() { return this.value === value; }).length === 0) {
+        select.append(new Option(value + " Hz", value));
+    }
+    select.val(value);
+}
+
 $(document).on('click', '.add', function(){
     // Clear the form and show the modal
     $('#addForm')[0].reset();
@@ -29,7 +51,8 @@ $(document).on('click', '#saveAdd', function(){
         name: $('#addName').val().trim(),
         url: $('#addUrl').val().trim(),
         rotation: $('#addRotation').val(),
-        zoom: $('#addZoom').val()
+        zoom: $('#addZoom').val(),
+        frequency: $('#addFrequency').val()
     };
     
     // Validate required fields
@@ -225,7 +248,8 @@ $(document).on('click', '.edit-entry', function(){
     $('#editUrl').val(data.url || "");
     $('#editRotation').val(data.rotation || "0");
     $('#editZoom').val(data.zoom || "1");
-    
+    setFrequency($('#editFrequency'), data.frequency);
+
     // Show the modal
     $('#editModal').modal('show');
 });
@@ -240,7 +264,8 @@ $(document).on('click', '#saveEdit', function(){
         name: $('#editName').val().trim(),
         url: $('#editUrl').val().trim(),
         rotation: $('#editRotation').val(),
-        zoom: $('#editZoom').val()
+        zoom: $('#editZoom').val(),
+        frequency: $('#editFrequency').val()
     };
     
     // Validate required fields

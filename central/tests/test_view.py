@@ -1,5 +1,6 @@
 import importlib.util
 import os
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -74,6 +75,13 @@ class TestView(unittest.TestCase):
         with mock.patch('requests.get', side_effect=requests.exceptions.ConnectionError):
             self.assertEqual(self.client.get('/shutdown?mac=aa:bb:cc:dd:ee:ff').status_code, 502)
 
+    def test_frequency_round_trip(self):
+        self.client.get('/update?mac=aa:bb:cc:dd:ee:ff&name=x&url=http://e.com'
+                        '&rotation=0&zoom=1.5&frequency=50')
+        data = self.client.get('/pi?mac=aa:bb:cc:dd:ee:ff').get_json()
+        self.assertEqual(data["frequency"], 50)
+        self.assertEqual(data["zoom"], 1.5)
+
     def test_update_unknown_originalmac(self):
         response = self.client.get('/update?originalmac=11:22:33:44:55:66'
                                    '&mac=aa:bb:cc:dd:ee:ff&name=x&url=http://e.com')
@@ -97,6 +105,25 @@ class TestView(unittest.TestCase):
                         '&rotation=0&zoom=1')
         self.assertEqual(self.client.get('/forget?mac=aa:bb:cc:dd:ee:ff').status_code, 200)
         self.assertEqual(self.client.get('/forget?mac=aa:bb:cc:dd:ee:ff').status_code, 404)
+
+
+class TestSchemaMigration(unittest.TestCase):
+
+    def test_adds_frequency_to_existing_db(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        db_path = os.path.join(tmp.name, "db.sqlite3")
+        con = sqlite3.connect(db_path)
+        con.execute('CREATE TABLE pis (mac TEXT PRIMARY KEY, name TEXT, last_seen_ip TEXT, last_seen_timestamp INTEGER, url TEXT, rotation INT, zoom INT, version TEXT, os TEXT, hardware TEXT)')
+        con.execute("INSERT INTO pis (mac, name, url) VALUES ('aa:bb:cc:dd:ee:ff', 'old', 'http://e.com')")
+        con.commit()
+        con.close()
+
+        client = _load_app(db_path).test_client()
+        data = client.get('/pi?mac=aa:bb:cc:dd:ee:ff').get_json()
+        self.assertEqual(data["name"], "old")
+        self.assertIn("frequency", data)
+        self.assertIsNone(data["frequency"])
 
 
 if __name__ == '__main__':

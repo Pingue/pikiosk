@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import tempfile
@@ -48,6 +49,19 @@ class TestLocalManager(unittest.TestCase):
         self.assertEqual(Path("manager").read_text(), "http://mgr")
         page = self.client.get("/").get_data(as_text=True)
         self.assertIn("lobby", page)
+
+    def test_save_writes_frequency(self):
+        self.client.get("/save?manager=http://mgr&url=http://site&name=lobby"
+                        "&rotation=0&zoom=1&frequency=50")
+        self.assertEqual(json.loads(Path("cacheddetails").read_text())["frequency"], "50")
+        self.assertIn('value="50"', self.client.get("/").get_data(as_text=True))
+
+    def test_home_with_cache_missing_frequency(self):
+        Path("cacheddetails").write_text(json.dumps(
+            {"name": "lobby", "url": "http://site", "rotation": "0", "zoom": "1"}))
+        page = self.client.get("/").get_data(as_text=True)
+        self.assertIn("lobby", page)
+        self.assertIn('value="59.94"', page)
 
     def test_reload_restarts_service(self):
         self.assertEqual(self.client.get("/reload").status_code, 302)
