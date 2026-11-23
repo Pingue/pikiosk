@@ -58,7 +58,7 @@
                         // Popover content is parsed as HTML, so values are escaped once for the HTML and again for the attribute.
                         {data: null, render: (data) => "<button type='button' class='btn btn-secondary version-popover' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-html='true' data-bs-content='" + escapeHtml("OS: " + escapeHtml(data.os) + " <br/>Pikiosk: " + escapeHtml(data.version) + " <br/>Hardware: " + escapeHtml(data.hardware)) + "'>Versions</button>"},
                         {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-primary refresh'>Refresh</button> <button type='button' class='btn btn-warning reload'>Reload</button> <button type='button' class='btn btn-danger reboot'>Reboot</button> <button type='button' class='btn btn-info gitpull'>Update</button> <button type='button' class='btn btn-secondary configure-pi'>Configure</button> <button type='button' class='btn btn-dark shutdown'>Shutdown</button></div>"},
-                        {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-success edit-entry'>Edit</button> <button type='button' class='btn btn-danger delete-entry'>Delete</button></div>"},
+                        {data: null, render: (data) => "<div style='text-align: center;'><button type='button' class='btn btn-success edit-entry'>Edit</button> <button type='button' class='btn btn-danger delete-entry'>Delete</button> <button type='button' class='btn btn-outline-danger forget-entry'>Forget</button></div>"},
                     ],
                     drawCallback: function() {
                         // Initialize popovers after each redraw
